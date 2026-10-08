@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,6 +10,12 @@ public class enemyAIController : MonoBehaviour
     //self
     NavMeshAgent agent;
     [SerializeField] LayerMask groundLayer, playerLayer;
+
+    //state triggering
+    [SerializeField] float sightRange, attackRange, checkDelay;
+    bool playerCloseSight, playerCloseAttack, recentlySpotted;
+    
+
 
     //patroling
     Vector3 target;
@@ -25,27 +32,34 @@ public class enemyAIController : MonoBehaviour
     }
 
     // Update is called once per frame
+    // Patrol until player sighted state machine
     void Update()
     {
-        Patrol();
+        if (!recentlySpotted) StartCoroutine(CheckPlayerInSight());
+
+        if (playerCloseSight)
+        {
+            if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
+            {
+                //attack
+            }
+            else
+            {
+                Chase();
+            }
+        }
+        else Patrol();
     }
 
     //try move to random spot
     void Patrol()
     {
-        if (!targetSet) 
-        {
-            SearchForTarget();
-        } 
-        if (targetSet) 
-        {
-            agent.SetDestination(target);
-            Debug.Log("set target to: " + target);
-        }
+        if (!targetSet) SearchForTarget();
+        if (targetSet) agent.SetDestination(target);
+
         if (Vector3.Distance(transform.position, target) < successDistance)
         {
             targetSet = false;
-            Debug.Log("reached");
         }
     }
 
@@ -60,7 +74,7 @@ public class enemyAIController : MonoBehaviour
         );
 
         //get closest valid, necessary for variable Y axis terrain
-        Debug.Log(NavMesh.SamplePosition(target, out NavMeshHit hit, 1000, NavMesh.AllAreas));
+        NavMesh.SamplePosition(target, out NavMeshHit hit, 1000, NavMesh.AllAreas);
         target = hit.position;
 
         //check if complete path available
@@ -71,4 +85,18 @@ public class enemyAIController : MonoBehaviour
         return targetSet;
     }
 
+    void Chase()
+    {
+        agent.SetDestination(player.transform.position);
+    }
+
+    private IEnumerator CheckPlayerInSight()
+    {
+        recentlySpotted = playerCloseSight = Physics.CheckSphere(transform.position, sightRange, playerLayer);
+        if (recentlySpotted)
+        {
+            yield return new WaitForSeconds(checkDelay);
+            recentlySpotted = false;
+        }
+    }
 }
