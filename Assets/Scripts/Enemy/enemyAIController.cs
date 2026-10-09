@@ -14,8 +14,10 @@ public class enemyAIController : MonoBehaviour
     //state triggering
     [SerializeField] float sightRange, attackRange, checkDelay;
     bool playerCloseSight, playerCloseAttack, recentlySpotted;
-    
 
+    //melee
+    [SerializeField] float pounceHeight, pounceSpeed;
+    CombatComponent combat;
 
     //patroling
     Vector3 target;
@@ -29,23 +31,22 @@ public class enemyAIController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         player = GameObject.FindGameObjectWithTag("Player");
+        combat = GetComponent<CombatComponent>();
     }
 
     // Update is called once per frame
-    // Patrol until player sighted state machine
+    //behaviour state machine
     void Update()
     {
+        //look for player
         if (!recentlySpotted) StartCoroutine(CheckPlayerInSight());
 
         if (playerCloseSight)
         {
+            Chase();
             if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
             {
-                //attack
-            }
-            else
-            {
-                Chase();
+                TryAttack();
             }
         }
         else Patrol();
@@ -85,11 +86,13 @@ public class enemyAIController : MonoBehaviour
         return targetSet;
     }
 
+    //AI move to player
     void Chase()
     {
         agent.SetDestination(player.transform.position);
     }
 
+    //update if player visible, delay to prevent constant checking
     private IEnumerator CheckPlayerInSight()
     {
         recentlySpotted = playerCloseSight = Physics.CheckSphere(transform.position, sightRange, playerLayer);
@@ -98,5 +101,29 @@ public class enemyAIController : MonoBehaviour
             yield return new WaitForSeconds(checkDelay);
             recentlySpotted = false;
         }
+    }
+
+    //Jump at player (during melee)
+    void pounce()
+    {
+        GetComponent<Rigidbody>().AddForce(
+            (player.transform.position - transform.position + Vector3.up * pounceHeight).normalized * pounceSpeed,
+            ForceMode.Impulse
+        );
+    }
+
+    void TryAttack()
+    {
+        if (combat.GetCanAttack())
+        {
+            Attack();
+        }
+    }
+
+    void Attack()
+    {
+        pounce();
+        combat.Attack(player.GetComponent<CombatComponent>(), 10);
+        Debug.Log("attack");
     }
 }
