@@ -19,14 +19,15 @@ public class CombatComponent : MonoBehaviour
         //die
     }
 
+    //heal or damage effect
     public float ChangeHealth(float delta)
     {
-        health += delta;
-        Mathf.Clamp(health, 0, maxHealth);
+        health = Mathf.Clamp(health + delta, 0, maxHealth);
         if (health == 0)
         {
             Die(); 
         }
+        Debug.Log("Health: " + health);
         return health;
     }
 
@@ -47,13 +48,25 @@ public class CombatComponent : MonoBehaviour
         canAttack = true;
     }
 
-    public void Attack(CombatComponent recipient, float damage)
+    //safe damage gameObject
+    public bool Attack(GameObject recipient, float damage)
     {
+        bool attacked = false;
+
         if (canAttack)
         {
-            recipient.ChangeHealth(-damage);
-            StartCoroutine(doAttackCooldown());
+            recipient.TryGetComponent(out CombatComponent other);
+
+            if (other != null)
+            {
+                other.ChangeHealth(-damage);
+                StartCoroutine(doAttackCooldown());
+                attacked = true;
+            }
+
         }
+
+        return attacked;
     }
 
     // Update is called once per frame

@@ -259,7 +259,7 @@ GameObject:
   - component: {fileID: 673543996}
   m_Layer: 0
   m_Name: Terrain
-  m_TagString: Untagged
+  m_TagString: Terrain
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -408,7 +408,7 @@ GameObject:
   - component: {fileID: 1082182856}
   m_Layer: 6
   m_Name: WalkTerrain
-  m_TagString: Untagged
+  m_TagString: Terrain
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -737,9 +737,11 @@ MonoBehaviour:
     m_Bits: 128
   sightRange: 25
   attackRange: 12
-  checkDelay: 1.5
-  pounceHeight: 14
-  pounceSpeed: 0
+  checkSightDelay: 0
+  pounceHeight: 2
+  pounceSpeed: 2
+  attackDelay: 3
+  pounceDmg: 1
   patrolRange: 15
   successDistance: 2
 --- !u!54 &1230330921
@@ -926,7 +928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatComponent
   attackCooldown: 0
-  maxHealth: 0
+  maxHealth: 3
 --- !u!1001 &4201334874093345224
 PrefabInstance:
   m_ObjectHideFlags: 0

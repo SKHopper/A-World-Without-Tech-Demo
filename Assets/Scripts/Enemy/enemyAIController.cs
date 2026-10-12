@@ -12,17 +12,26 @@ public class enemyAIController : MonoBehaviour
     [SerializeField] LayerMask groundLayer, playerLayer;
     Rigidbody rigidbody;
 
+    [Header("State Machine")]
     //state triggering
-    [SerializeField] float sightRange, attackRange, checkDelay;
+    [SerializeField] float sightRange;
+    [SerializeField] float attackRange;
+    [SerializeField] float checkSightDelay;
     bool playerCloseSight, playerCloseAttack, recentlySpotted;
 
     //melee
-    [SerializeField] float pounceHeight, pounceSpeed;
+    [Header("Melee")]
+    [SerializeField] float pounceHeight;
+    [SerializeField] float pounceSpeed;
+    [SerializeField] float attackDelay;
+    [SerializeField] float pounceDmg;
     CombatComponent combat;
+    bool midAttack = false;
 
-    //patroling
+    //patrolling
     Vector3 target;
     bool targetSet = false;
+    [Header("Patrolling")]
     [SerializeField] float patrolRange;
     [SerializeField] float successDistance;
 
@@ -64,14 +73,16 @@ public class enemyAIController : MonoBehaviour
         StartCoroutine(OutOfBoundsCheck());
     }
 
+    void MoveInBounds()
+    {
+        agent.SetDestination(NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 1000, NavMesh.AllAreas) ? hit.position : transform.position);
+    }
+
     //move to closest mesh point if off after 5 seconds
     IEnumerator OutOfBoundsCheck()
     {
         yield return new WaitForSeconds(5f);
-        if (!agent.isOnNavMesh && agent.enabled)
-        {
-            agent.SetDestination(NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 1000, NavMesh.AllAreas) ? hit.position : transform.position);
-        }
+        if (!agent.isOnNavMesh && agent.enabled) MoveInBounds();
     }
 
     //try move to random spot
@@ -90,20 +101,23 @@ public class enemyAIController : MonoBehaviour
     //returns true if valid spot found
     bool SearchForTarget()
     {
-        target = new Vector3(
-            transform.position.x + Random.Range(-patrolRange, patrolRange), 
-            transform.position.y, 
-            transform.position.z + Random.Range(-patrolRange, patrolRange)
-        );
+        if (agent.enabled && agent.isOnNavMesh)
+        {
+            target = new Vector3(
+                transform.position.x + Random.Range(-patrolRange, patrolRange),
+                transform.position.y,
+                transform.position.z + Random.Range(-patrolRange, patrolRange)
+            );
 
-        //get closest valid, necessary for variable Y axis terrain
-        NavMesh.SamplePosition(target, out NavMeshHit hit, 1000, NavMesh.AllAreas);
-        target = hit.position;
+            //get closest valid, necessary for variable Y axis terrain
+            NavMesh.SamplePosition(target, out NavMeshHit hit, 1000, NavMesh.AllAreas);
+            target = hit.position;
 
-        //check if complete path available
-        NavMeshPath testPath = new NavMeshPath();
-        bool pathValid = agent.CalculatePath(target, testPath);
-        targetSet = hit.hit && pathValid && (testPath.status == NavMeshPathStatus.PathComplete);
+            //check if complete path available
+            NavMeshPath testPath = new NavMeshPath();
+            bool pathValid = agent.CalculatePath(target, testPath);
+            targetSet = hit.hit && pathValid && (testPath.status == NavMeshPathStatus.PathComplete);
+        }
 
         return targetSet;
     }
@@ -120,38 +134,89 @@ public class enemyAIController : MonoBehaviour
         recentlySpotted = playerCloseSight = Physics.CheckSphere(transform.position, sightRange, playerLayer);
         if (recentlySpotted)
         {
-            yield return new WaitForSeconds(checkDelay);
+            yield return new WaitForSeconds(checkSightDelay);
             recentlySpotted = false;
         }
     }
 
-    //Jump at player (during melee, briefly disconnects navmesh)
+    //jump at player (during melee, briefly disconnects navmesh)
     IEnumerator Pounce()
     {
         agent.enabled = false;
         yield return new WaitForEndOfFrame();
+
         Vector3 toPlayer = player.transform.position - transform.position;
         toPlayer.y = 0;
         rigidbody.AddForce(
             toPlayer * pounceSpeed + Vector3.up * pounceHeight,
             ForceMode.Impulse
         );
-        yield return new WaitForSeconds(2f);
-        agent.enabled = true;
+
+        StartCoroutine(OutOfBoundsCheck());
     }
 
+    //jump to damage player if out of cooldown
     void TryAttack()
     {
-        if (combat.GetCanAttack())
+        if (combat.GetCanAttack() && !midAttack)
+        {
+            StartCoroutine(BeginAttack());
+        }
+    }
+
+    //defer to tryAttack
+    IEnumerator BeginAttack()
+    {
+        StartCoroutine(Pounce());
+        midAttack = true;
+        yield return new WaitForSeconds(attackDelay);//wait to get close to player
+        if (midAttack) //if hit player collision will trigger attack
         {
             Attack();
         }
     }
 
-    void Attack()
+    //deal damage to player
+    void Attack() 
     {
-        StartCoroutine(Pounce());
-        Debug.Log("attack");
-        combat.Attack(player.GetComponent<CombatComponent>(), 10);
+        midAttack = false;
+        combat.Attack(player.gameObject, pounceDmg);
+    }
+
+    //overlap casing
+    void OnCollisionEnter(Collision other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "Terrain":
+                EventHitGround();
+                break;
+
+            case "Player":
+                EventHitPlayer();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    //check attack if close to player
+    void EventHitPlayer() 
+    {
+        if (midAttack)
+        {
+            Attack();
+        }
+    }
+
+    //check enable agent on hit ground
+    void EventHitGround() 
+    {
+        if (!agent.enabled)
+        {
+            agent.enabled = true;
+            MoveInBounds();
+        }
     }
 }
