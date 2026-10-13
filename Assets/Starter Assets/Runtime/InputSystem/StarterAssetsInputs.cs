@@ -20,11 +20,15 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 
+		//component of type PlayerMovement
+		public IPlayerMovement specialMovement;
+
 #if ENABLE_INPUT_SYSTEM
-		public void OnMove(InputValue value)
+
+        public void OnMove(InputValue value)
 		{
 			MoveInput(value.Get<Vector2>());
-		}
+        }
 
 		public void OnLook(InputValue value)
 		{
@@ -49,7 +53,8 @@ namespace StarterAssets
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+			if (newMoveDirection.magnitude > 0) specialMovement.Dash(newMoveDirection);
+        } 
 
 		public void LookInput(Vector2 newLookDirection)
 		{

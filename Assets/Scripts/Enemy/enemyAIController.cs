@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 //controller for enemy AI combat and movement
 
-public class enemyAIController : MonoBehaviour
+public class EnemyAIController : MonoBehaviour
 {
     GameObject player;
     //self

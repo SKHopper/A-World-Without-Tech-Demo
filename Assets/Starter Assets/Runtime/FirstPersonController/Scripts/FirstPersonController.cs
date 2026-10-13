@@ -11,6 +11,14 @@ namespace StarterAssets
 #endif
 	public class FirstPersonController : MonoBehaviour
 	{
+		////////// extension
+
+		bool isDashing;
+		Vector3 dashVelocity;
+		Vector3 dashTarget;
+
+		////////////
+
 		[Header("Player")]
 		[Tooltip("Move speed of the character in m/s")]
 		public float MoveSpeed = 4.0f;
@@ -64,6 +72,14 @@ namespace StarterAssets
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
 
+		//for dash movement on isDashing
+		public void SetDash(bool newIsDashing, Vector3 target)
+		{
+			dashTarget = target;
+			isDashing = newIsDashing;
+		}
+
+		public bool GetIsDashing() { return isDashing;  }
 	
 #if ENABLE_INPUT_SYSTEM
 		private PlayerInput _playerInput;
@@ -99,8 +115,9 @@ namespace StarterAssets
 		{
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
+			_input.specialMovement = GetComponent<IPlayerMovement>();
 #if ENABLE_INPUT_SYSTEM
-			_playerInput = GetComponent<PlayerInput>();
+            _playerInput = GetComponent<PlayerInput>();
 #else
 			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
@@ -108,7 +125,7 @@ namespace StarterAssets
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
-		}
+        }
 
 		private void Update()
 		{
@@ -151,8 +168,15 @@ namespace StarterAssets
 			}
 		}
 
-		private void Move()
+        private void Move()
 		{
+			//dash
+			if (isDashing)
+			{
+				_controller.Move(dashTarget * Time.deltaTime);
+                return;
+			}
+
 			// set target speed based on move speed, sprint speed and if sprint is pressed
 			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 

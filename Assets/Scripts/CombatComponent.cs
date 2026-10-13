@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class CombatComponent : MonoBehaviour
+public class CombatComponent : MonoBehaviour, ICombat
 {
     bool canAttack = true;
     [SerializeField] float attackCooldown;
@@ -55,9 +55,8 @@ public class CombatComponent : MonoBehaviour
 
         if (canAttack)
         {
-            recipient.TryGetComponent(out CombatComponent other);
-
-            if (other != null)
+            
+            if (recipient.TryGetComponent(out ICombat other))
             {
                 other.ChangeHealth(-damage);
                 StartCoroutine(doAttackCooldown());
