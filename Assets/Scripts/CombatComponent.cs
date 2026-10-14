@@ -1,33 +1,27 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class CombatComponent : MonoBehaviour, ICombat
+public class CombatComponent : MonoBehaviour
 {
     bool canAttack = true;
     [SerializeField] float attackCooldown;
     [SerializeField] float maxHealth;
     float health;
+    ICombat parent;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        parent = GetComponent<ICombat>();
         health = maxHealth;
-    }
-
-    void Die()
-    {
-        //die
     }
 
     //heal or damage effect
     public float ChangeHealth(float delta)
     {
         health = Mathf.Clamp(health + delta, 0, maxHealth);
-        if (health == 0)
-        {
-            Die(); 
-        }
-        Debug.Log("Health: " + health);
+        parent.HealthChanged(health);
         return health;
     }
 
@@ -36,12 +30,17 @@ public class CombatComponent : MonoBehaviour, ICombat
         return health;
     }
 
+    public float GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
     public bool GetCanAttack()
     {
         return canAttack;
     }
 
-    private IEnumerator doAttackCooldown()
+    private IEnumerator DoAttackCooldown()
     {
         canAttack = false;
         yield return new WaitForSeconds(attackCooldown);
@@ -56,10 +55,10 @@ public class CombatComponent : MonoBehaviour, ICombat
         if (canAttack)
         {
             
-            if (recipient.TryGetComponent(out ICombat other))
+            if (recipient.TryGetComponent(out CombatComponent other))
             {
                 other.ChangeHealth(-damage);
-                StartCoroutine(doAttackCooldown());
+                StartCoroutine(DoAttackCooldown());
                 attacked = true;
             }
 

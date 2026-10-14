@@ -173,6 +173,7 @@ namespace StarterAssets
 			//dash
 			if (isDashing)
 			{
+				//rather than applying lateral acceleration on walk/run target
 				_controller.Move(dashTarget * Time.deltaTime);
                 return;
 			}

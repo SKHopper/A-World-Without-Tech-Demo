@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface ICombat
 {
-    float ChangeHealth(float delta);
+    public void HealthChanged(float health) {}
 }
