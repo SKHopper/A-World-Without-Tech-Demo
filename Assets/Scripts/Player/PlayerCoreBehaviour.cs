@@ -12,6 +12,7 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     SliderComp healthSlider;
     CombatComponent combat;
     OxygenComponent oxygen;
+    PlayerMovement movement;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -19,12 +20,14 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     {
         combat = GetComponent<CombatComponent>();
         oxygen = GetComponent<OxygenComponent>();
+        movement = GetComponent<PlayerMovement>();
 
         //as the FirstPersonController is prefab, player cannot access hard ref before runtime
         hud = GameObject.FindGameObjectWithTag("Hud");
         foreach (Slider slider in hud.GetComponentsInChildren<Slider>())
         {
             //setup each HUD slider
+            //also runs other setup for components here to order execution
             SliderComp comp = slider.GetComponent<SliderComp>();
             switch (slider.name)
             {
@@ -37,6 +40,11 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
                 case "OxygenSlider":
 
                     oxygen.Setup(comp);
+                    break;
+
+                case "DashSlider":
+
+                    movement.Setup(comp);
                     break;
 
                 default:

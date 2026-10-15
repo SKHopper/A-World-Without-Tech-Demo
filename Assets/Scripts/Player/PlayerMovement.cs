@@ -1,6 +1,7 @@
 using StarterAssets;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 
@@ -9,32 +10,62 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement
     CharacterController charControl;
     FirstPersonController firstPersonControl;
     Rigidbody rigidBody;
+    SliderComp dashSlider;
 
     //movement
     [SerializeField] float dashInputSeconds, dashSpeed, dashHeight, dashLength, dashCooldown;
     Vector2 lastMoveDirection = Vector2.zero;
-    float lastMoveTime = 0f;
+    float lastMoveTime;
     bool justDashed = true;
     bool canDash = true;
+    float lastDashTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        
+    }
+
+    public void Setup(SliderComp newDashSlider)
+    {
         charControl = GetComponent<CharacterController>();
         firstPersonControl = GetComponent<FirstPersonController>();
         rigidBody = GetComponent<Rigidbody>();
+
+        dashSlider = newDashSlider;
+        dashSlider.Setup(dashCooldown, 0);
+        dashSlider.Toggle(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //ramp down cooldown slider if post-dash
+        if (!canDash)
+        {
+            dashSlider.UpdateBar(
+                dashCooldown - (Time.time - lastDashTime)
+            );
+        }
+    }
+
+    void StartDashSlider()
+    {
+        lastDashTime = Time.time;
+        dashSlider.Toggle(true);
+        dashSlider.UpdateBar(dashCooldown);
+    }
+
+    void EndDashSlider()
+    {
+        dashSlider.Toggle(false);
     }
 
     //set move values for FPController to apply over time
     IEnumerator DashLaunch(Vector2 direction)
     {
-        Debug.Log("Dashing");
+        StartDashSlider();
+
         canDash = false;
         direction *= dashSpeed;
         //rotated and multiplied dash direction
@@ -48,6 +79,8 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement
 
         yield return new WaitForSeconds(Mathf.Clamp(dashCooldown - dashLength, 0, dashCooldown));
         canDash = true;
+
+        EndDashSlider();
     }
 
     void RecordFirstDashInput(Vector2 direction)
