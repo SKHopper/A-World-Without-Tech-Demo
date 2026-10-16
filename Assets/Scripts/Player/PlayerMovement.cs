@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement
     CharacterController charControl;
     FirstPersonController firstPersonControl;
     Rigidbody rigidBody;
-    SliderComp dashSlider;
+    ISlider dashSlider;
 
     //movement
     [SerializeField] float dashInputSeconds, dashSpeed, dashHeight, dashLength, dashCooldown;
@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement
         
     }
 
-    public void Setup(SliderComp newDashSlider)
+    public void Setup(ISlider newDashSlider)
     {
         charControl = GetComponent<CharacterController>();
         firstPersonControl = GetComponent<FirstPersonController>();

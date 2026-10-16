@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 
 //controller for enemy AI combat and movement
 
@@ -11,20 +12,24 @@ public class EnemyAIController : MonoBehaviour, ICombat
     NavMeshAgent agent;
     [SerializeField] LayerMask groundLayer, playerLayer;
     Rigidbody rigidbody;
+    [SerializeField] bool drawDebug;
 
     [Header("State Machine")]
     //state triggering
     [SerializeField] float sightRange;
-    [SerializeField] float attackRange;
+    [SerializeField] float attackSuccessRange;
     [SerializeField] float checkSightDelay;
     bool playerCloseSight, playerCloseAttack, recentlySpotted;
 
     //melee
     [Header("Melee")]
+    [SerializeField] float attackRange;
     [SerializeField] float pounceHeight;
     [SerializeField] float pounceSpeed;
     [SerializeField] float attackDelay;
     [SerializeField] float pounceDmg;
+    [SerializeField] Vector3 pounceTraceOffset;
+    [SerializeField] Vector3 pounceTraceDimensions;
     CombatComponent combat;
     bool midAttack = false;
 
@@ -144,11 +149,12 @@ public class EnemyAIController : MonoBehaviour, ICombat
     {
         agent.enabled = false;
         yield return new WaitForEndOfFrame();
-
+        
+        //jump up const configured and forward toward player
         Vector3 toPlayer = player.transform.position - transform.position;
         toPlayer.y = 0;
         rigidbody.AddForce(
-            toPlayer * pounceSpeed + Vector3.up * pounceHeight,
+            toPlayer.normalized * pounceSpeed + Vector3.up * pounceHeight,
             ForceMode.Impulse
         );
 
@@ -172,8 +178,30 @@ public class EnemyAIController : MonoBehaviour, ICombat
         yield return new WaitForSeconds(attackDelay);//wait to get close to player
         if (midAttack) //if hit player collision will trigger attack
         {
-            Attack();
+            // check player location in bounds
+            if (PlayerTrace()) Attack();
+            else midAttack = false;
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        //visualise non-collision attack area
+        if (drawDebug)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(
+                //values set in inspector
+                transform.position + (Quaternion.LookRotation(-transform.right, Vector3.up) * pounceTraceOffset),
+                pounceTraceDimensions
+            );
+        }
+    }
+
+    //is player in attack hitbox
+    bool PlayerTrace()
+    {
+        return (player.transform.position - transform.position).magnitude < attackSuccessRange;
     }
 
     //deal damage to player

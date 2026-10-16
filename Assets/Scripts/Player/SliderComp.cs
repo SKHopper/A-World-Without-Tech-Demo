@@ -2,7 +2,7 @@ using System.Reflection.Metadata.Ecma335;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SliderComp : MonoBehaviour
+public class SliderComp : MonoBehaviour, ISlider
 {
     //used to turn values into percentages
     float percentileValue;

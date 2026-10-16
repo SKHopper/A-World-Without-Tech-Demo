@@ -5,14 +5,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //core between player component scripts
+//inc. main UI handler
 public class PlayerCoreBehaviour : MonoBehaviour, ICombat
 {
-    //set in inspector
-    GameObject hud;
-    SliderComp healthSlider;
     CombatComponent combat;
     OxygenComponent oxygen;
     PlayerMovement movement;
+    //UI
+    GameObject hud;
+    ISlider healthSlider;
+    DamageEffect dmgFx;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -21,30 +23,31 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
         combat = GetComponent<CombatComponent>();
         oxygen = GetComponent<OxygenComponent>();
         movement = GetComponent<PlayerMovement>();
-
         //as the FirstPersonController is prefab, player cannot access hard ref before runtime
         hud = GameObject.FindGameObjectWithTag("Hud");
+        dmgFx = hud.GetComponentInChildren<DamageEffect>();
+
         foreach (Slider slider in hud.GetComponentsInChildren<Slider>())
         {
             //setup each HUD slider
             //also runs other setup for components here to order execution
-            SliderComp comp = slider.GetComponent<SliderComp>();
+            ISlider compIF = slider.GetComponent<ISlider>();
             switch (slider.name)
             {
                 case "HealthSlider":
 
-                    healthSlider = comp;
+                    healthSlider = compIF;
                     healthSlider.Setup(combat.GetMaxHealth(), combat.GetMaxHealth());
                     break;
 
                 case "OxygenSlider":
 
-                    oxygen.Setup(comp);
+                    oxygen.Setup(compIF);
                     break;
 
                 case "DashSlider":
 
-                    movement.Setup(comp);
+                    movement.Setup(compIF);
                     break;
 
                 default:
@@ -64,5 +67,6 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     public void HealthChanged(float health) 
     {
         healthSlider.UpdateBar(health);
+        dmgFx.StartEffect();
     }
 }

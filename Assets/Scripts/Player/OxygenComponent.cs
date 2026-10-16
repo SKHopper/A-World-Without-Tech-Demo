@@ -11,12 +11,12 @@ public class OxygenComponent : MonoBehaviour
     //per second
     [SerializeField] float passiveLossOxygen;
     float oxygen;
-    SliderComp slider;
+    ISlider slider;
 
     void Start() {}
 
     //set initial values with slider
-    public void Setup(SliderComp newSlider)
+    public void Setup(ISlider newSlider)
     {
         oxygen = initialOxygen;
         slider = newSlider;
