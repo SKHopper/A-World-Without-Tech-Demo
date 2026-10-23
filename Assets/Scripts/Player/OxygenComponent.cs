@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 //tracker for player oxygen and oxygen abilities
-public class OxygenComponent : MonoBehaviour
+public class OxygenComponent : MonoBehaviour, ISliderUser
 {
     [Header("Base Values")]
     [SerializeField] float initialOxygen;
@@ -23,6 +23,8 @@ public class OxygenComponent : MonoBehaviour
 
         slider.Setup(maxOxygen, oxygen);
     }
+
+    public string Name() { return "OxygenSlider"; }
 
     public float ChangeOxygen(float delta)
     {

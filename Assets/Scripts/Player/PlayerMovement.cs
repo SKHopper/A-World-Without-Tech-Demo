@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 
 
-public class PlayerMovement : MonoBehaviour, IPlayerMovement
+public class PlayerMovement : MonoBehaviour, IPlayerMovement, ISliderUser
 {
     CharacterController charControl;
     FirstPersonController firstPersonControl;
@@ -36,6 +36,8 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement
         dashSlider.Setup(dashCooldown, 0);
         dashSlider.Toggle(false);
     }
+
+    public string Name() { return "DashSlider"; }
 
     // Update is called once per frame
     void Update()

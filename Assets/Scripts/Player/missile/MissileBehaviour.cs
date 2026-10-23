@@ -14,6 +14,7 @@ using UnityEngine.UIElements;
     [SerializeField] public float sensitivity;
     //overlap sphere size
     [SerializeField] public float radius;
+    [SerializeField] public float damage;
 }
 
 public class MissileBehaviour : MonoBehaviour
@@ -107,10 +108,10 @@ public class MissileBehaviour : MonoBehaviour
         );
     }
 
-    void Hit(MissileHitType type)
+    void Hit(MissileHitType type, GameObject other)
     {
         Toggle(false);
-        parentLauncher.MissileHit(type);
+        parentLauncher.MissileHit(type, other);
     }
 
     //overlap collider
@@ -120,7 +121,7 @@ public class MissileBehaviour : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
-            if (hitTypeMap.TryGetValue(hit.gameObject.name, out MissileHitType type)) Hit(type);
+            if (hitTypeMap.TryGetValue(hit.gameObject.name, out MissileHitType type)) Hit(type, hit.gameObject);
         }
     }
 
@@ -129,7 +130,7 @@ public class MissileBehaviour : MonoBehaviour
     {
         if (active && Vector3.Distance(transform.position, parentLauncher.Position()) > stats.maxDistance)
         {
-            Hit(MissileHitType.maxDistance);
+            Hit(MissileHitType.maxDistance, null);
         }
     }
 }

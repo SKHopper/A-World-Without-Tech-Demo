@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -8,53 +9,28 @@ using UnityEngine.UI;
 //inc. main UI handler
 public class PlayerCoreBehaviour : MonoBehaviour, ICombat
 {
-    CombatComponent combat;
-    OxygenComponent oxygen;
-    PlayerMovement movement;
     //UI
     GameObject hud;
-    ISlider healthSlider;
     DamageEffect dmgFx;
+    SortedDictionary<string, ISliderUser> sliderUserMap = new SortedDictionary<string, ISliderUser>();
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        combat = GetComponent<CombatComponent>();
-        oxygen = GetComponent<OxygenComponent>();
-        movement = GetComponent<PlayerMovement>();
         //as the FirstPersonController is prefab, player cannot access hard ref before runtime
         hud = GameObject.FindGameObjectWithTag("Hud");
         dmgFx = hud.GetComponentInChildren<DamageEffect>();
 
-        foreach (Slider slider in hud.GetComponentsInChildren<Slider>())
-        {
-            //setup each HUD slider
-            //also runs other setup for components here to order execution
-            ISlider compIF = slider.GetComponent<ISlider>();
-            switch (slider.name)
-            {
-                case "HealthSlider":
+        //hand over each HUD slide bar to controlling components
+        //includes: HealthSlider, BossBarSlider, DashSlider, OxygenSlider
+        ISliderUser[] sliderUsers = GetComponents<ISliderUser>();
 
-                    healthSlider = compIF;
-                    healthSlider.Setup(combat.GetMaxHealth(), combat.GetMaxHealth());
-                    break;
+        foreach (ISliderUser user in sliderUsers) 
+            sliderUserMap.Add(user.Name(), user);
 
-                case "OxygenSlider":
-
-                    oxygen.Setup(compIF);
-                    break;
-
-                case "DashSlider":
-
-                    movement.Setup(compIF);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
+        foreach (Slider slider in hud.GetComponentsInChildren<Slider>()) 
+            sliderUserMap[slider.name].Setup(slider.GetComponent<ISlider>());
     }
 
     // Update is called once per frame
@@ -66,7 +42,6 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     //ICombat
     public void HealthChanged(float health) 
     {
-        healthSlider.UpdateBar(health);
         dmgFx.StartEffect();
     }
 }
