@@ -283,11 +283,13 @@ public class EnemyAIController : MonoBehaviour, ICombat
         }
     }
 
-    //ICombat I/F Die
+    //ICombat I/F 
     public void HealthChanged(float health)
     {
 
 
         //report death to game state manager
     }
+
+
 }

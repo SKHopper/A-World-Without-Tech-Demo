@@ -10,8 +10,11 @@ public class OxygenComponent : MonoBehaviour, ISliderUser
     [SerializeField] float maxOxygen;
     //per second
     [SerializeField] float passiveLossOxygen;
+    //seconds
+    float oxygenTickPeriod = 0.1f;
     float oxygen;
     ISlider slider;
+    bool doOxygenTick;
 
     void Start() {}
 
@@ -22,21 +25,36 @@ public class OxygenComponent : MonoBehaviour, ISliderUser
         slider = newSlider;
 
         slider.Setup(maxOxygen, oxygen);
+        StartOxygenTick();
+    }
+
+    public void StartOxygenTick()
+    {
+        doOxygenTick = true;
+        StartCoroutine(OxygenTick());
+    }
+
+    public void EndOxygenTick()
+    {
+        doOxygenTick = false;
     }
 
     public string Name() { return "OxygenSlider"; }
 
     public float ChangeOxygen(float delta)
     {
-        return oxygen = Mathf.Clamp(oxygen, 0, maxOxygen);
+        oxygen = Mathf.Clamp(oxygen + delta, 0, maxOxygen);
+        slider.UpdateBar(oxygen);
+        return oxygen;
     }
 
     //the player loses oxygen at a steady rate passively
     IEnumerator OxygenTick()
     {
-        while (true) {
-            yield return new WaitForSeconds(1);
+        while (doOxygenTick) {
 
+            yield return new WaitForSeconds(oxygenTickPeriod);
+            ChangeOxygen(-passiveLossOxygen * oxygenTickPeriod);
         }
     }
 }

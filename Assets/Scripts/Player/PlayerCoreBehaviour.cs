@@ -19,18 +19,14 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     void Start()
     {
         //as the FirstPersonController is prefab, player cannot access hard ref before runtime
+
         hud = GameObject.FindGameObjectWithTag("Hud");
         dmgFx = hud.GetComponentInChildren<DamageEffect>();
 
         //hand over each HUD slide bar to controlling components
-        //includes: HealthSlider, BossBarSlider, DashSlider, OxygenSlider
-        ISliderUser[] sliderUsers = GetComponents<ISliderUser>();
-
-        foreach (ISliderUser user in sliderUsers) 
-            sliderUserMap.Add(user.Name(), user);
-
-        foreach (Slider slider in hud.GetComponentsInChildren<Slider>()) 
-            sliderUserMap[slider.name].Setup(slider.GetComponent<ISlider>());
+        //inc string names: HealthSlider, BossBarSlider, DashSlider, OxygenSlider
+        foreach (ISliderUser user in GetComponents<ISliderUser>()) sliderUserMap.Add(user.Name(), user);
+        foreach (Slider slider in hud.GetComponentsInChildren<Slider>()) sliderUserMap[slider.name].Setup(slider.GetComponent<ISlider>());
     }
 
     // Update is called once per frame
