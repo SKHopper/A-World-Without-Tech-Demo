@@ -1,6 +1,8 @@
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CombatComponent : MonoBehaviour, ISliderUser
 {
@@ -10,6 +12,11 @@ public class CombatComponent : MonoBehaviour, ISliderUser
     float health;
     ICombat parent;
     ISlider slider;
+    //incoming damage mult
+    float vulnerability = 1;
+    //slider default colour
+    Color fillDefault;
+    [SerializeField] Color fillVulnerable;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,7 +28,8 @@ public class CombatComponent : MonoBehaviour, ISliderUser
     //heal or damage effect
     public float ChangeHealth(float delta)
     {
-        health = Mathf.Clamp(health + delta, 0, maxHealth);
+        float nDelta = (delta < 0) ? delta * vulnerability : delta;
+        health = Mathf.Clamp(health + nDelta, 0, maxHealth);
         parent.HealthChanged(health);
         slider.UpdateBar(health);
         return health;
@@ -48,6 +56,7 @@ public class CombatComponent : MonoBehaviour, ISliderUser
     {
         slider = sliderComponent;
         slider.Setup(maxHealth, maxHealth);
+        fillDefault = slider.GetFill();
     }
 
     private IEnumerator DoAttackCooldown()
@@ -75,6 +84,27 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         }
 
         return attacked;
+    }
+
+    //become vulnerable for duration
+    public IEnumerator ToggleVulnerability(float dmgMult, float duration)
+    {
+        vulnerability = dmgMult;
+        slider.SetFill(fillVulnerable);
+
+        yield return new WaitForSeconds(duration);
+
+        vulnerability = 1;
+        slider.SetFill(fillDefault);
+    }
+    
+    //apply vulnerability for duration
+    public void ApplyVulnerability(GameObject recipient, float dmgMult, float duration)
+    {
+        if (vulnerability == 1 && recipient.TryGetComponent(out CombatComponent other))
+        {
+            StartCoroutine(other.ToggleVulnerability(dmgMult, duration));
+        }
     }
 
     // Update is called once per frame

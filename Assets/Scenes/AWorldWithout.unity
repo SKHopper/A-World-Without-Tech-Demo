@@ -2165,6 +2165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   attackCooldown: 3
   maxHealth: 20
+  fillVulnerable: {r: 0.9741456, g: 1, b: 0.6084906, a: 1}
 --- !u!1 &1234069727
 GameObject:
   m_ObjectHideFlags: 0
@@ -3472,6 +3473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatComponent
   attackCooldown: 1.7
   maxHealth: 20
+  fillVulnerable: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1563360611105945815
 MonoBehaviour:
   m_ObjectHideFlags: 0

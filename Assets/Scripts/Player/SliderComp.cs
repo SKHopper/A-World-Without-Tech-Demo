@@ -8,12 +8,14 @@ public class SliderComp : MonoBehaviour, ISlider
     float percentileValue;
     Vector3 defaultSize;
     Slider slider;
+    Image sliderFill;
 
     //set initial values
     public void Setup(float newMax, float current)
     {
         percentileValue = 100 / newMax;
         slider = GetComponent<Slider>();
+        sliderFill = slider.transform.GetChild(1).GetComponentInChildren<Image>();
         defaultSize = slider.transform.localScale;
         UpdateBar(current);
     }
@@ -39,5 +41,15 @@ public class SliderComp : MonoBehaviour, ISlider
     void Update()
     {
         
+    }
+
+    public Color GetFill()
+    {
+        return sliderFill.color;
+    }
+
+    public void SetFill(Color fill)
+    {
+        sliderFill.color = fill;
     }
 }
