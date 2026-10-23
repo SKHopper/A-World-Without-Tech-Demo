@@ -5,10 +5,21 @@ using UnityEngine.Rendering;
 
 //controller for enemy AI combat and movement
 
+public enum enemyAIState
+{
+    //enemey will do roaming navigation
+    idle = 0,
+    //enemy will navigate toward the player
+    chasing,
+    //enemy will try to attack player
+    attacking
+}
+
 public class EnemyAIController : MonoBehaviour, ICombat
 {
     GameObject player;
     //self
+    enemyAIState state;
     NavMeshAgent agent;
     [SerializeField] LayerMask groundLayer, playerLayer;
     Rigidbody rigidbody;
@@ -50,22 +61,45 @@ public class EnemyAIController : MonoBehaviour, ICombat
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    //behaviour state machine
-    void Update()
+    void UpdateState()
     {
         //look for player
         if (!recentlySpotted) StartCoroutine(CheckPlayerInSight());
 
         if (playerCloseSight)
         {
-            Chase();
             if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
             {
-                TryAttack();
+                state = enemyAIState.attacking;
+            } 
+            else
+            {
+                state = enemyAIState.chasing;
             }
         }
-        else Patrol();
+        else state = enemyAIState.idle;
+    }
+
+    // Update is called once per frame
+    //behaviour state machine
+    void Update()
+    {
+        UpdateState();
+
+        switch (state)
+        {
+            case enemyAIState.idle:
+                Patrol();
+                break;
+
+            case enemyAIState.chasing:
+                Chase();
+                break;
+
+            case enemyAIState.attacking:
+                TryAttack();
+                break;
+        }
     }
 
     //use instead of SetDestination
@@ -246,5 +280,11 @@ public class EnemyAIController : MonoBehaviour, ICombat
             agent.enabled = true;
             MoveInBounds();
         }
+    }
+
+    //ICombat I/F Die
+    public void HealthChanged(float health)
+    {
+        //report death to game state manager
     }
 }
