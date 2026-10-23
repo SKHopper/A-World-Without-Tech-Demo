@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 //controller for enemy AI combat and movement
 
-public enum enemyAIState
+public enum EnemyAIState
 {
     //enemey will do roaming navigation
     idle = 0,
@@ -19,7 +19,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
 {
     GameObject player;
     //self
-    enemyAIState state;
+    EnemyAIState state;
     NavMeshAgent agent;
     [SerializeField] LayerMask groundLayer, playerLayer;
     Rigidbody rigidbody;
@@ -61,6 +61,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
         rigidbody = GetComponent<Rigidbody>();
     }
 
+    //set state for next move/combat action
     void UpdateState()
     {
         //look for player
@@ -70,14 +71,14 @@ public class EnemyAIController : MonoBehaviour, ICombat
         {
             if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
             {
-                state = enemyAIState.attacking;
+                state = EnemyAIState.attacking;
             } 
             else
             {
-                state = enemyAIState.chasing;
+                state = EnemyAIState.chasing;
             }
         }
-        else state = enemyAIState.idle;
+        else state = EnemyAIState.idle;
     }
 
     // Update is called once per frame
@@ -88,15 +89,15 @@ public class EnemyAIController : MonoBehaviour, ICombat
 
         switch (state)
         {
-            case enemyAIState.idle:
+            case EnemyAIState.idle:
                 Patrol();
                 break;
 
-            case enemyAIState.chasing:
+            case EnemyAIState.chasing:
                 Chase();
                 break;
 
-            case enemyAIState.attacking:
+            case EnemyAIState.attacking:
                 TryAttack();
                 break;
         }
