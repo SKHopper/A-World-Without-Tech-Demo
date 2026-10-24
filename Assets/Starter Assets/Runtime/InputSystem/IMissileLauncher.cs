@@ -5,8 +5,8 @@ public enum MissileHitType
 {
     maxDistance = 0,
     ground,
-    enemy
-
+    enemy,
+    oxygen
 }
 
 //abstracted missile launcher obj

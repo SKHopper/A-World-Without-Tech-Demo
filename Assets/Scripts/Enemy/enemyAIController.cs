@@ -28,21 +28,23 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [Header("State Machine")]
     //state triggering
     [SerializeField] float sightRange;
-    [SerializeField] float attackSuccessRange;
     [SerializeField] float checkSightDelay;
     bool playerCloseSight, playerCloseAttack, recentlySpotted;
 
     //melee
     [Header("Melee")]
     [SerializeField] float attackRange;
+    [SerializeField] float attackSuccessRange;
     [SerializeField] float pounceHeight;
     [SerializeField] float pounceSpeed;
+    [SerializeField] float pounceCooldown;
     [SerializeField] float attackDelay;
     [SerializeField] float pounceDmg;
     [SerializeField] Vector3 pounceTraceOffset;
     [SerializeField] Vector3 pounceTraceDimensions;
     CombatComponent combat;
     bool midAttack = false;
+    bool midPounce = false;
 
     //patrolling
     Vector3 target;
@@ -69,7 +71,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
 
         if (playerCloseSight)
         {
-            if (Vector3.Distance(transform.position, player.transform.position) < attackRange)
+            if (GetAttackViable())
             {
                 state = EnemyAIState.attacking;
             } 
@@ -103,6 +105,15 @@ public class EnemyAIController : MonoBehaviour, ICombat
         }
     }
 
+    bool GetAttackViable()
+    {
+        return
+            Vector3.Distance(transform.position, player.transform.position) < attackRange
+            && combat.GetCanAttack() 
+            && !midAttack
+            && !midPounce;
+    }
+
     //use instead of SetDestination
     void SafeMoveTo(Vector3 destination)
     {
@@ -110,7 +121,6 @@ public class EnemyAIController : MonoBehaviour, ICombat
         {
             agent.SetDestination(destination);
         }
-        StartCoroutine(OutOfBoundsCheck());
     }
 
     void MoveInBounds()
@@ -182,6 +192,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     //jump at player (during melee, briefly disconnects navmesh)
     IEnumerator Pounce()
     {
+        midPounce = true;
         agent.enabled = false;
         yield return new WaitForEndOfFrame();
         
@@ -194,19 +205,19 @@ public class EnemyAIController : MonoBehaviour, ICombat
         );
 
         StartCoroutine(OutOfBoundsCheck());
+
+        yield return new WaitForSeconds(pounceCooldown);
+        midPounce = false;
     }
 
     //jump to damage player if out of cooldown
     void TryAttack()
     {
-        if (combat.GetCanAttack() && !midAttack)
-        {
-            StartCoroutine(BeginAttack());
-        }
+        StartCoroutine(BeginAttackSequence());
     }
 
     //defer to tryAttack
-    IEnumerator BeginAttack()
+    IEnumerator BeginAttackSequence()
     {
         StartCoroutine(Pounce());
         midAttack = true;

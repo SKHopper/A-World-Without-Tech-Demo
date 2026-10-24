@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.ParticleSystem;
 
 //IMissileLauncher may be found under starterassets and is communicated to starterAssetsInputs by FPController
 public class MissileLauncher : MonoBehaviour, IMissileLauncher

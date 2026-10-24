@@ -4,6 +4,17 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+//MissileHitType ParticleSystem names and Player
+[Serializable] public struct MissileHitParticles
+{
+    [SerializeField] public MonoBehaviour systemsPlayer;
+    [SerializeField] public List<string> maxDistance;
+    [SerializeField] public List<string> enemy;
+    [SerializeField] public List<string> ground;
+    [SerializeField] public List<string> oxygen;
+}
+
+//collated missile obj information
 [Serializable] public struct MissileStats
 {
     //distance moved per second
@@ -15,6 +26,8 @@ using UnityEngine.UIElements;
     //overlap sphere size
     [SerializeField] public float radius;
     [SerializeField] public float damage;
+    [Header("VFX - MissileHitType ParticleSystem(s)")]
+    [SerializeField] public MissileHitParticles particleSystemConfig;
 }
 
 public class MissileBehaviour : MonoBehaviour
@@ -25,11 +38,15 @@ public class MissileBehaviour : MonoBehaviour
     GameObject playerCam;
     MissileStats stats;
     IMissileLauncher parentLauncher;
+    //obj type SimpleParticlesPlayer (rather than SimpleParticles)
+    ISimpleParticles player;
+    SortedDictionary<MissileHitType, List<string>> hitTypeParticles = new SortedDictionary<MissileHitType, List<string>>();
 
     SortedDictionary<string, MissileHitType> hitTypeMap = new SortedDictionary<string, MissileHitType>()
     {
         { "Enemy", MissileHitType.enemy },
-        { "WalkTerrain", MissileHitType.ground }
+        { "WalkTerrain", MissileHitType.ground },
+        { "OxygenBomb", MissileHitType.oxygen }
     };
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -43,6 +60,13 @@ public class MissileBehaviour : MonoBehaviour
         parentLauncher = parent;
         playerCam = camera;
         stats = newStats;
+
+        player = stats.particleSystemConfig.systemsPlayer.GetComponent<ISimpleParticles>();
+        //sorted dictionaries cannot be serialized
+        hitTypeParticles.Add(MissileHitType.maxDistance, stats.particleSystemConfig.maxDistance);
+        hitTypeParticles.Add(MissileHitType.ground, stats.particleSystemConfig.ground);
+        hitTypeParticles.Add(MissileHitType.enemy, stats.particleSystemConfig.enemy);
+        hitTypeParticles.Add(MissileHitType.oxygen, stats.particleSystemConfig.oxygen);
     }
 
     public bool GetActive()
@@ -108,8 +132,19 @@ public class MissileBehaviour : MonoBehaviour
         );
     }
 
+    void Effect(MissileHitType type)
+    {
+        //VFX
+        player.Play(
+            transform.position,
+            hitTypeParticles[type]
+        );
+        //SFX
+    }
+
     void Hit(MissileHitType type, GameObject other)
     {
+        Effect(type);
         Toggle(false);
         parentLauncher.MissileHit(type, other);
     }
