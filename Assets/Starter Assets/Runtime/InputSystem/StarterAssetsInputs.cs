@@ -24,13 +24,20 @@ namespace StarterAssets
 		public IPlayerMovement specialMovement;
 		//component of type MissileLauncher
 		public IMissileLauncher missileComponent;
+        //component of type BombLauncher
+        public IBombLauncher bombComponent;
 
 #if ENABLE_INPUT_SYSTEM
 
         public void OnFire(InputValue value)
 		{
 			missileComponent.TryFire();
-		}
+        }
+        public void OnAltFire(InputValue value)
+        {
+            bombComponent.TryFire();
+        }
+
 
         public void OnMove(InputValue value)
 		{

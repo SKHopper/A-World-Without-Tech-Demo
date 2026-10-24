@@ -55,6 +55,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "AltFire",
+                    "type": "Button",
+                    "id": "db186cdc-00d5-41c0-99f2-0109b184d876",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -242,6 +252,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f4653a1e-c78c-4e61-84de-bf644c5e3108",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AltFire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

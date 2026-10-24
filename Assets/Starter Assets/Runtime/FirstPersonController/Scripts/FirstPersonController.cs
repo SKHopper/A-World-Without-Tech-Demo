@@ -117,6 +117,7 @@ namespace StarterAssets
 			_input = GetComponent<StarterAssetsInputs>();
 			_input.specialMovement = GetComponent<IPlayerMovement>();
 			_input.missileComponent = GetComponent<IMissileLauncher>();
+            _input.bombComponent = GetComponent<IBombLauncher>();
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
 #else
