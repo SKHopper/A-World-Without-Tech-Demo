@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
     [SerializeField] public float rotMult;
 }
 
-public class BombBehaviour : MonoBehaviour
+public class BombBehaviour : MonoBehaviour, IBombHittable
 {
     Vector3 deactivePosition = new Vector3(0, 0, 1000);
     bool active = false;
@@ -20,16 +20,18 @@ public class BombBehaviour : MonoBehaviour
     float activeLifetime;
     BombStats stats;
     GameObject playerCam;
+    IBombPool parentPool;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
     }
 
-    public void Setup(GameObject newCam, BombStats newStats)
+    public void Setup(GameObject newCam, BombStats newStats, IBombPool newPool)
     {
         playerCam = newCam;
         stats = newStats;
+        parentPool = newPool;
         transform.position = deactivePosition;
     }
 
@@ -43,7 +45,7 @@ public class BombBehaviour : MonoBehaviour
         }
     }
 
-    public void Launch()
+    public void Fire()
     {
         direction = playerCam.transform.forward;
         rotation = Random.rotation;
@@ -66,4 +68,16 @@ public class BombBehaviour : MonoBehaviour
     }
 
     public bool GetActive() { return active; }
+
+    void Deactivate()
+    {
+        active = false;
+        transform.position = deactivePosition;
+    }
+
+    public void Hit()
+    {
+        Deactivate();
+        parentPool.Explosion(this);
+    }
 }

@@ -41,6 +41,11 @@ public class MissileLauncher : MonoBehaviour, IMissileLauncher
     {
         switch (hit)
         {
+
+            case MissileHitType.maxDistance:
+                //in this case other will be null
+                break;
+
             case MissileHitType.enemy:
                 combat.Attack(other, stats.damage);
                 break;
@@ -48,11 +53,8 @@ public class MissileLauncher : MonoBehaviour, IMissileLauncher
             case MissileHitType.ground:
                 break;
 
-            case MissileHitType.maxDistance:
-                //in this case other will be null
-                break;
-
-            default:
+            case MissileHitType.oxygen:
+                other.GetComponent<IBombHittable>().Hit();
                 break;
         }
     }

@@ -46,7 +46,7 @@ public class MissileBehaviour : MonoBehaviour
     {
         { "Enemy", MissileHitType.enemy },
         { "WalkTerrain", MissileHitType.ground },
-        { "OxygenBomb", MissileHitType.oxygen }
+        { "OxygenBomb(Clone)", MissileHitType.oxygen }
     };
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

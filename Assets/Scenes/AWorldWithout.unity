@@ -387,7 +387,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 0
@@ -9806,6 +9806,7 @@ GameObject:
   - component: {fileID: 1733663704}
   - component: {fileID: 1733663703}
   - component: {fileID: 1733663706}
+  - component: {fileID: 1733663707}
   m_Layer: 0
   m_Name: OxygenBomb
   m_TagString: Untagged
@@ -9879,7 +9880,7 @@ Transform:
   m_GameObject: {fileID: 1733663701}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 546.723, y: 1.92, z: 491.26627}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.7425051, y: 1.7425051, z: 1.7425051}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -9898,6 +9899,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f63f974030784914e95365d9a03e861c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BombBehaviour
+--- !u!135 &1733663707
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733663701}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.49999997
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1808787207
 GameObject:
   m_ObjectHideFlags: 0
@@ -10696,6 +10718,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8616685848737228372, guid: c5efc39a8aaf6e64ea40e9ad573e9b47, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1563360611105945852}
+    - targetCorrespondingSourceObject: {fileID: 8616685848737228372, guid: c5efc39a8aaf6e64ea40e9ad573e9b47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1563360611105945853}
   m_SourcePrefab: {fileID: 100100000, guid: c5efc39a8aaf6e64ea40e9ad573e9b47, type: 3}
 --- !u!4 &1563360611105945807 stripped
 Transform:
@@ -10825,7 +10850,6 @@ MonoBehaviour:
       - Smoke
       - Burst
       oxygen:
-      - Smoke
       - Burst
       - Sparks
 --- !u!114 &1563360611105945845
@@ -10865,12 +10889,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c37828e0ccd496c48a4c0535e8860aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BombLauncher
-  bomb: {fileID: 1733663706}
+  bomb: {fileID: 1733663701}
+  pool: {fileID: 1563360611105945853}
+  population: 3
   camera: {fileID: 2043154623}
   stats:
     launchSpeed: 10
     dragCoefficient: -0.7
     rotMult: 1
+--- !u!114 &1563360611105945853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877546547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abee4a6c104ef8a46a3d876cc857d1c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1001 &4201334874093345224
 PrefabInstance:
   m_ObjectHideFlags: 0
