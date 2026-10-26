@@ -6,21 +6,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //core between player component scripts
-//inc. main UI handler
+//inc. main UI connector
 public class PlayerCoreBehaviour : MonoBehaviour, ICombat
 {
     //UI
-    GameObject hud;
+    [SerializeField] GameObject hud;
+
     DamageEffect dmgFx;
+
     SortedDictionary<string, ISliderUser> sliderUserMap = new SortedDictionary<string, ISliderUser>();
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //as the FirstPersonController is prefab, player cannot access hard ref before runtime
-
-        hud = GameObject.FindGameObjectWithTag("Hud");
         dmgFx = hud.GetComponentInChildren<DamageEffect>();
 
         //hand over each HUD slide bar to controlling components
@@ -35,7 +34,7 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
         
     }
 
-    //ICombat
+    //override ICombat
     public void HealthChanged(float health) 
     {
         dmgFx.StartEffect();

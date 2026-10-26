@@ -30,23 +30,27 @@ using UnityEngine.UIElements;
     [SerializeField] public MissileHitParticles particleSystemConfig;
 }
 
+//non-re-instanciated reused projectile
 public class MissileBehaviour : MonoBehaviour
 {
     [SerializeField] LayerMask ground;
-    Vector3 deactivePosition;
-    bool active = false;
-    GameObject playerCam;
-    MissileStats stats;
+
     IMissileLauncher parentLauncher;
     //obj type SimpleParticlesPlayer (rather than SimpleParticles)
-    ISimpleParticles player;
-    SortedDictionary<MissileHitType, List<string>> hitTypeParticles = new SortedDictionary<MissileHitType, List<string>>();
+    GameObject playerCam;
 
+    Vector3 deactivePosition;
+    bool active = false;
+    MissileStats stats;
+    ISimpleParticles player;
+    //map hit types to individual particle effect systems
+    SortedDictionary<MissileHitType, List<string>> hitTypeParticles = new SortedDictionary<MissileHitType, List<string>>();
+    //map hit gamObj names to enumerated hit types
     SortedDictionary<string, MissileHitType> hitTypeMap = new SortedDictionary<string, MissileHitType>()
     {
-        { "Enemy", MissileHitType.enemy },
-        { "WalkTerrain", MissileHitType.ground },
-        { "OxygenBomb(Clone)", MissileHitType.oxygen }
+        { "Enemy",              MissileHitType.enemy },
+        { "WalkTerrain",        MissileHitType.ground },
+        { "OxygenBomb(Clone)",  MissileHitType.oxygen }
     };
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -55,6 +59,7 @@ public class MissileBehaviour : MonoBehaviour
         transform.position = deactivePosition = new Vector3(0, 0, 1000);
     }
 
+    //setup by parent launcher
     public void Setup(IMissileLauncher parent, GameObject camera, MissileStats newStats)
     {
         parentLauncher = parent;
@@ -111,6 +116,7 @@ public class MissileBehaviour : MonoBehaviour
         }
     }
 
+    //move forward by speed stat
     void Move()
     {
         transform.position +=
@@ -122,7 +128,8 @@ public class MissileBehaviour : MonoBehaviour
         );
 
     }
-
+    
+    //rotate toward player look
     void Rotate()
     {
         transform.rotation = Quaternion.Lerp(
@@ -139,9 +146,12 @@ public class MissileBehaviour : MonoBehaviour
             transform.position,
             hitTypeParticles[type]
         );
+
         //SFX
+
     }
 
+    //explode and report parent to go idle
     void Hit(MissileHitType type, GameObject other)
     {
         Effect(type);
@@ -149,7 +159,7 @@ public class MissileBehaviour : MonoBehaviour
         parentLauncher.MissileHit(type, other);
     }
 
-    //overlap collider
+    //try hit overlapped colliders
     void Collide()
     { 
         Collider[] hits = Physics.OverlapSphere(transform.position, stats.radius);
@@ -160,12 +170,10 @@ public class MissileBehaviour : MonoBehaviour
         }
     }
 
-    //
+    //hit maxDistance if active and beyond stat value
     void Constrain()
     {
-        if (active && Vector3.Distance(transform.position, parentLauncher.Position()) > stats.maxDistance)
-        {
+        if (active && Vector3.Distance(transform.position, parentLauncher.Position()) > stats.maxDistance) 
             Hit(MissileHitType.maxDistance, null);
-        }
     }
 }

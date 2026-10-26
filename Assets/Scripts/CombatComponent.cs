@@ -4,19 +4,25 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
+//health and damage store and transfer, including vulnerability (dmg mult) condition
+//can be given slider to update
 public class CombatComponent : MonoBehaviour, ISliderUser
 {
-    bool canAttack = true;
     [SerializeField] float attackCooldown;
     [SerializeField] float maxHealth;
-    float health;
+    [SerializeField] bool canBeVulnerable;
+    [SerializeField] Color fillVulnerable;
+
     ICombat parent;
     ISlider slider;
+
     //incoming damage mult
     float vulnerability = 1;
+    float health;
+    bool canAttack = true;
+    bool hasSlider = false;
     //slider default colour
     Color fillDefault;
-    [SerializeField] Color fillVulnerable;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -25,13 +31,13 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         health = maxHealth;
     }
 
-    //heal or damage effect
+    //heal or damage effect on This
     public float ChangeHealth(float delta)
     {
         float nDelta = (delta < 0) ? delta * vulnerability : delta;
         health = Mathf.Clamp(health + nDelta, 0, maxHealth);
         parent.HealthChanged(health);
-        slider.UpdateBar(health);
+        if (hasSlider) slider.UpdateBar(health);
         return health;
     }
 
@@ -50,10 +56,13 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         return canAttack;
     }
 
+    //override ISliderUser
     public string Name() { return "HealthSlider"; }
 
+    //set initial values for slider
     public void Setup(ISlider sliderComponent)
     {
+        hasSlider = true;
         slider = sliderComponent;
         slider.Setup(maxHealth, maxHealth);
         fillDefault = slider.GetFill();
@@ -66,45 +75,37 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         canAttack = true;
     }
 
-    //safe damage gameObject
+    //safe damage other gameObject's comp
     public bool Attack(GameObject recipient, float damage)
     {
         bool attacked = false;
 
-        if (canAttack)
+        if (canAttack && recipient.TryGetComponent(out CombatComponent other))
         {
-            
-            if (recipient.TryGetComponent(out CombatComponent other))
-            {
-                other.ChangeHealth(-damage);
-                StartCoroutine(DoAttackCooldown());
-                attacked = true;
-            }
-
+            other.ChangeHealth(-damage);
+            StartCoroutine(DoAttackCooldown());
+            attacked = true;
         }
 
         return attacked;
     }
 
     //become vulnerable for duration
-    public IEnumerator ToggleVulnerability(float dmgMult, float duration)
+    IEnumerator ToggleVulnerability(float dmgMult, float duration)
     {
         vulnerability = dmgMult;
-        slider.SetFill(fillVulnerable);
+        if (hasSlider) slider.SetFill(fillVulnerable);
 
         yield return new WaitForSeconds(duration);
 
         vulnerability = 1;
-        slider.SetFill(fillDefault);
+        if (hasSlider) slider.SetFill(fillDefault);
     }
     
     //apply vulnerability for duration
-    public void ApplyVulnerability(GameObject recipient, float dmgMult, float duration)
+    public void ApplyVulnerability(float dmgMult, float duration)
     {
-        if (vulnerability == 1 && recipient.TryGetComponent(out CombatComponent other))
-        {
-            StartCoroutine(other.ToggleVulnerability(dmgMult, duration));
-        }
+        if (canBeVulnerable && vulnerability == 1) StartCoroutine(ToggleVulnerability(dmgMult, duration));
     }
 
     // Update is called once per frame

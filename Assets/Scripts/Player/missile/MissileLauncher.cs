@@ -3,12 +3,14 @@ using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
 //IMissileLauncher may be found under starterassets and is communicated to starterAssetsInputs by FPController
+//player-side manager of MissileBehaviour (Missile gameobj)
 public class MissileLauncher : MonoBehaviour, IMissileLauncher
 {
     [SerializeField] MissileBehaviour missile;
     [SerializeField] GameObject camera;
     [Header("Stats")]
     [SerializeField] MissileStats stats;
+
     CombatComponent combat;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

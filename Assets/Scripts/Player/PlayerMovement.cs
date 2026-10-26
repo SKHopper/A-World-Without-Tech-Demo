@@ -3,17 +3,17 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-
-
+//custom connection from StarterAssetsInputs --> FirstPersonController and movement UI
+//decides whether WASD OnMove can and does execute dash
+//dash slider counts down with cooldown, invisible otherwise
 public class PlayerMovement : MonoBehaviour, IPlayerMovement, ISliderUser
 {
-    CharacterController charControl;
     FirstPersonController firstPersonControl;
-    Rigidbody rigidBody;
     ISlider dashSlider;
 
     //movement
     [SerializeField] float dashInputSeconds, dashSpeed, dashHeight, dashLength, dashCooldown;
+
     Vector2 lastMoveDirection = Vector2.zero;
     float lastMoveTime;
     bool justDashed = true;
@@ -28,9 +28,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement, ISliderUser
 
     public void Setup(ISlider newDashSlider)
     {
-        charControl = GetComponent<CharacterController>();
         firstPersonControl = GetComponent<FirstPersonController>();
-        rigidBody = GetComponent<Rigidbody>();
 
         dashSlider = newDashSlider;
         dashSlider.Setup(dashCooldown, 0);
@@ -64,6 +62,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement, ISliderUser
     }
 
     //set move values for FPController to apply over time
+    //sequence begins and ends both dash UI and movement
     IEnumerator DashLaunch(Vector2 direction)
     {
         StartDashSlider();
@@ -91,6 +90,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerMovement, ISliderUser
         lastMoveTime = Time.time;
     }
 
+    //direct result of WASD OnMove in inputs
     public void Dash(Vector2 value)
     {
         //first dash input

@@ -2,7 +2,8 @@ using StarterAssets;
 using System.Collections;
 using UnityEngine;
 
-//tracker for player oxygen and oxygen abilities
+//tracker for player oxygen
+//stores current with passive loss/time
 public class OxygenComponent : MonoBehaviour, ISliderUser
 {
     [Header("Base Values")]
@@ -10,11 +11,13 @@ public class OxygenComponent : MonoBehaviour, ISliderUser
     [SerializeField] float maxOxygen;
     //per second
     [SerializeField] float passiveLossOxygen;
+
     //seconds
     float oxygenTickPeriod = 0.1f;
     float oxygen;
-    ISlider slider;
     bool doOxygenTick;
+
+    ISlider slider;
 
     void Start() {}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+//instantiator and manager of object pool of OxygenBomb clones (BombBehaviour)
 public class BombPool : MonoBehaviour, IBombPool
 {
     List<BombBehaviour> idleQueue = new List<BombBehaviour>();
@@ -20,6 +21,7 @@ public class BombPool : MonoBehaviour, IBombPool
         
     }
 
+    //instanciate and setup bombs
     public void Setup(BombStats stats, GameObject camera, int count, GameObject original)
     {
         for (int index = 0; index < count; index++)
@@ -29,6 +31,7 @@ public class BombPool : MonoBehaviour, IBombPool
         }
     }
 
+    //either cycle oldest idle or recycle oldedst live bomb
     BombBehaviour GetNextBomb()
     {
         if (idleQueue.Count() == 0)

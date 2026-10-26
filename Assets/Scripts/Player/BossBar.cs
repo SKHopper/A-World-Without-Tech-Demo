@@ -1,5 +1,7 @@
 using UnityEngine;
 
+//healthbar for first enemy of tag "Enemy" found in game
+//essentially a connector between the enemy's CombatComponent and the hud's SliderComponent
 public class BossBar : MonoBehaviour, ISliderUser
 {
 
@@ -17,6 +19,7 @@ public class BossBar : MonoBehaviour, ISliderUser
 
     public void Setup(ISlider sliderComp)
     {
+        //ISliderUser will be CombatComponent
         GameObject.FindGameObjectWithTag("Enemy").GetComponent<ISliderUser>().Setup(sliderComp);
     }
 

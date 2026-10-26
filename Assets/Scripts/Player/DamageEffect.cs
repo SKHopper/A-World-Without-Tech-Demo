@@ -5,11 +5,15 @@ using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
 
+//fullscreen uGUI flash effect
+//lerps image between first colour and transparent colour
 public class DamageEffect : MonoBehaviour
 {
     Image parentImage;
+
     float startTime;
     float duration = 0.25f;
+    //duration/2 for formulae
     float halfLength;
     UnityEngine.Color oldRGB;
 

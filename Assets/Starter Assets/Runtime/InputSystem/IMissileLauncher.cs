@@ -1,6 +1,7 @@
 using UnityEngine;
 using static Codice.Client.Common.EventTracking.TrackFeatureUseEvent.Features.DesktopGUI.Filters;
 
+//potential reasons for missile terminus
 public enum MissileHitType
 {
     maxDistance = 0,

@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 using UnityEngine.UIElements;
 
 //this component fires all child particle systems at a location+their transform
 //should be attached to empty parent
 //should be accessed via simpleParticlesPlayer
-
 public class SimpleParticles : MonoBehaviour, ISimpleParticles
 {
     SortedDictionary<string, Tuple<ParticleSystem, Vector3>> systems = new SortedDictionary<string, Tuple<ParticleSystem, Vector3>>();
@@ -28,13 +28,29 @@ public class SimpleParticles : MonoBehaviour, ISimpleParticles
     {
         StartCoroutine(StartDelay());
     }
+
+    void PlaySystem(ParticleSystem system, Vector3 position, Vector3 origin)
+    {
+        system.transform.position = position + origin;
+        system.Play();
+    }
+
     public void Play(Vector3 position, List<string> names)
     {
-        foreach (string name in names)
+        if (names == null)
         {
-            Tuple<ParticleSystem, Vector3> pair = systems[name];
-            pair.Item1.transform.position = pair.Item2 + position;
-            pair.Item1.Play();
+            foreach (Tuple<ParticleSystem, Vector3> pair in systems.Values)
+            {
+                PlaySystem(pair.Item1, pair.Item2, position);
+            }
+        }
+        else
+        {
+            foreach (string name in names)
+            {
+                Tuple<ParticleSystem, Vector3> pair = systems[name];
+                PlaySystem(pair.Item1, pair.Item2, position);
+            }
         }
     }
 

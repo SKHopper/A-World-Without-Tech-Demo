@@ -1,5 +1,6 @@
 using UnityEngine;
 
+//I/F for SliderComp
 public interface ISlider
 {
     //set new value
