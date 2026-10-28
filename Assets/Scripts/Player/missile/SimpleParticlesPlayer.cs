@@ -6,7 +6,7 @@ using UnityEngine;
 public class SimpleParticlesPlayer : MonoBehaviour, ISimpleParticles
 {
     [Header("Particle Systems Parent GameObject")]
-    [SerializeField] GameObject multiSystem;
+    [SerializeField] GameObject multiSystem = null;
 
     ISimpleParticles particles;
 
@@ -18,7 +18,7 @@ public class SimpleParticlesPlayer : MonoBehaviour, ISimpleParticles
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        particles = multiSystem.GetComponent<ISimpleParticles>();
+        if (multiSystem != null) particles = multiSystem.GetComponent<ISimpleParticles>();
     }
 
     // Update is called once per frame

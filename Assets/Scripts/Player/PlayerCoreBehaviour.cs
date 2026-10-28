@@ -10,9 +10,10 @@ using UnityEngine.UI;
 public class PlayerCoreBehaviour : MonoBehaviour, ICombat
 {
     //UI
-    [SerializeField] GameObject hud;
+    [SerializeField] public GameObject hud = null;
 
     DamageEffect dmgFx;
+    public IGameState gameState;
 
     SortedDictionary<string, ISliderUser> sliderUserMap = new SortedDictionary<string, ISliderUser>();
 
@@ -20,6 +21,7 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (hud == null) return;
         dmgFx = hud.GetComponentInChildren<DamageEffect>();
 
         //hand over each HUD slide bar to controlling components
@@ -38,5 +40,10 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
     public void HealthChanged(float health) 
     {
         dmgFx.StartEffect();
+
+        if (health == 0)
+        {
+            gameState.ReportDeath(this.gameObject, DeathType.zeroHealth);
+        }
     }
 }

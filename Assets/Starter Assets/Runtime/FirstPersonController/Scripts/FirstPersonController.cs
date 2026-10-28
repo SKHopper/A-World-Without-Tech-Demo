@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 #endif
 
 namespace StarterAssets
@@ -85,7 +86,7 @@ namespace StarterAssets
 		private PlayerInput _playerInput;
 #endif
 		private CharacterController _controller;
-		private StarterAssetsInputs _input;
+		public StarterAssetsInputs _input;
 		private GameObject _mainCamera;
 
 		private const float _threshold = 0.01f;
@@ -115,9 +116,12 @@ namespace StarterAssets
 		{
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
-			_input.specialMovement = GetComponent<IPlayerMovement>();
-			_input.missileComponent = GetComponent<IMissileLauncher>();
-            _input.bombComponent = GetComponent<IBombLauncher>();
+			if (SceneManager.GetActiveScene().name == "AWorldWithout")
+            {
+                _input.specialMovement = GetComponent<IPlayerMovement>();
+                _input.missileComponent = GetComponent<IMissileLauncher>();
+                _input.bombComponent = GetComponent<IBombLauncher>();
+            }
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
 #else

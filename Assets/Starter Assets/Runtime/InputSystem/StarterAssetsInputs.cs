@@ -31,11 +31,11 @@ namespace StarterAssets
 
         public void OnFire(InputValue value)
 		{
-			missileComponent.TryFire();
+			if (!Cursor.visible) missileComponent.TryFire();
         }
         public void OnAltFire(InputValue value)
         {
-            bombComponent.TryFire();
+            if (!Cursor.visible) bombComponent.TryFire();
         }
 
 
@@ -67,7 +67,7 @@ namespace StarterAssets
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-			if (newMoveDirection.magnitude > 0) specialMovement.Dash(newMoveDirection);
+			if (specialMovement != null && newMoveDirection.magnitude > 0) specialMovement.Dash(newMoveDirection);
         } 
 
 		public void LookInput(Vector2 newLookDirection)

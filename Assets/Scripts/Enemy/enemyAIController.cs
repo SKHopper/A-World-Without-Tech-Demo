@@ -18,6 +18,7 @@ public enum EnemyAIState
 public class EnemyAIController : MonoBehaviour, ICombat
 {
     GameObject player;
+    public IGameState gameState;
     //self
     EnemyAIState state;
     NavMeshAgent agent;
@@ -297,9 +298,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     //ICombat I/F 
     public void HealthChanged(float health)
     {
-
-
-        //report death to game state manager
+        gameState.ReportDeath(this.gameObject);
     }
 
 

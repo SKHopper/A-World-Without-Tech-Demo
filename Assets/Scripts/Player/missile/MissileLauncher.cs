@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static UnityEngine.ParticleSystem;
 
 //IMissileLauncher may be found under starterassets and is communicated to starterAssetsInputs by FPController
@@ -13,11 +14,14 @@ public class MissileLauncher : MonoBehaviour, IMissileLauncher
 
     CombatComponent combat;
 
+    bool gameScene;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameScene = SceneManager.GetActiveScene().name == "AWorldWithout";
         combat = GetComponent<CombatComponent>();
-        missile.Setup(
+        if (gameScene) missile.Setup(
             this,
             camera,
             stats

@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 //player-side manager of BombBehaviour (OxygenBomb)
 public class BombLauncher : MonoBehaviour, IBombLauncher
 {
-    [SerializeField] GameObject bomb;
+    [SerializeField] GameObject bomb = null;
     [SerializeField] BombPool pool;
     [SerializeField] int population;
     [SerializeField] GameObject camera;
@@ -16,12 +17,14 @@ public class BombLauncher : MonoBehaviour, IBombLauncher
     void Start()
     {
         oxygen = GetComponent<OxygenComponent>();
-        pool.Setup(
+        if (bomb != null) pool.Setup(
             stats,
-            camera, 
+            camera,
             population,
             bomb
         );
+        
+            
     }
 
     // Update is called once per frame

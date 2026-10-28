@@ -18,6 +18,7 @@ public class OxygenComponent : MonoBehaviour, ISliderUser
     bool doOxygenTick;
 
     ISlider slider;
+    public IGameState gameState;
 
     void Start() {}
 
@@ -44,11 +45,12 @@ public class OxygenComponent : MonoBehaviour, ISliderUser
 
     public string Name() { return "OxygenSlider"; }
 
-    public float ChangeOxygen(float delta)
+    public void ChangeOxygen(float delta)
     {
         oxygen = Mathf.Clamp(oxygen + delta, 0, maxOxygen);
         slider.UpdateBar(oxygen);
-        return oxygen;
+
+        if (oxygen == 0) gameState.ReportDeath(this.gameObject, DeathType.zeroOxygen);
     }
 
     //the player loses oxygen at a steady rate passively
