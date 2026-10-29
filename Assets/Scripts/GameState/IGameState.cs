@@ -6,9 +6,9 @@ public enum DeathType
     zeroOxygen
 }
 
-//abstracted gamestate manager (observer)
+//abstracted gamestate or main menu manager (observer)
 public interface IGameState
 {
-    public void ReportDeath(GameObject corpse, DeathType causeOfDeath = DeathType.zeroHealth);
+    public void ReportDeath(GameObject corpse, DeathType causeOfDeath = DeathType.zeroHealth) { }
     public void ReportQuit();
 }
