@@ -16,6 +16,7 @@ public class GameState : MonoBehaviour, IGameState
     [SerializeField] string menuScene;
 
     FirstPersonController playerCtrl;
+    FuelRewardComponent playerFuelSystem;
     DeathScreen deathScreen;
 
     SortedDictionary<DeathType, string> deathMessage = new SortedDictionary<DeathType, string>() 
@@ -28,6 +29,7 @@ public class GameState : MonoBehaviour, IGameState
     void Start()
     {
         playerCtrl = player.GetComponent<FirstPersonController>();
+        playerFuelSystem = player.GetComponent<FuelRewardComponent>();
         deathScreen = GetComponent<DeathScreen>();
 
         player.gameState = this;
@@ -82,7 +84,7 @@ public class GameState : MonoBehaviour, IGameState
         }
         else if (corpse == enemyOriginal.gameObject)
         {
-            //enemy died
+            playerFuelSystem.Reward();
         }
     }
 

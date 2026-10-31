@@ -30,6 +30,7 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
     {
         if (hud == null) return;
         dmgFx = hud.GetComponentInChildren<DamageEffect>();
+        fuelSystem = GetComponent<FuelRewardComponent>();
 
         //hand over each HUD slide bar to controlling components
         //inc string names: HealthSlider, BossBarSlider, DashSlider, OxygenSlider
