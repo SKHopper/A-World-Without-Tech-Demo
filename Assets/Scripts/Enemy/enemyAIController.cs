@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 //controller for enemy AI combat and movement
 
@@ -31,6 +32,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [SerializeField] float sightRange;
     [SerializeField] float checkSightDelay;
     bool playerCloseSight, playerCloseAttack, recentlySpotted;
+    bool active = false;
 
     //melee
     [Header("Melee")]
@@ -44,8 +46,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [SerializeField] Vector3 pounceTraceOffset;
     [SerializeField] Vector3 pounceTraceDimensions;
     CombatComponent combat;
-    bool midAttack = false;
-    bool midPounce = false;
+    bool midAttack, midPounce = false;
 
     //patrolling
     Vector3 target;
@@ -53,6 +54,8 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [Header("Patrolling")]
     [SerializeField] float patrolRange;
     [SerializeField] float successDistance;
+
+    Vector3 deactivePosition = new Vector3(0, 0, 1000);
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -62,6 +65,29 @@ public class EnemyAIController : MonoBehaviour, ICombat
         player = GameObject.FindGameObjectWithTag("Player");
         combat = GetComponent<CombatComponent>();
         rigidbody = GetComponent<Rigidbody>();
+
+        Activate(transform.position);
+    }
+
+    //locate to position and activate
+    public void Activate(Vector3 position)
+    {
+        transform.position = position;
+        active = true;
+    }
+
+    //reset state data, dissapear, and idle this
+    public void Deactivate()
+    {
+        active =
+        playerCloseSight =
+        playerCloseAttack =
+        recentlySpotted =
+        midAttack =
+        midPounce = false;
+
+        transform.position = deactivePosition;
+        combat.ResetState();
     }
 
     //set state for next move/combat action
@@ -88,6 +114,8 @@ public class EnemyAIController : MonoBehaviour, ICombat
     //behaviour state machine
     void Update()
     {
+        if (!active) return;
+
         UpdateState();
 
         switch (state)
@@ -133,7 +161,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     IEnumerator OutOfBoundsCheck()
     {
         yield return new WaitForSeconds(5f);
-        if (!agent.isOnNavMesh && agent.enabled) MoveInBounds();
+        if (active && !agent.isOnNavMesh && agent.enabled) MoveInBounds();
     }
 
     //try move to random spot
@@ -186,6 +214,8 @@ public class EnemyAIController : MonoBehaviour, ICombat
         if (recentlySpotted)
         {
             yield return new WaitForSeconds(checkSightDelay);
+
+            if (!active) yield break;
             recentlySpotted = false;
         }
     }
@@ -196,7 +226,9 @@ public class EnemyAIController : MonoBehaviour, ICombat
         midPounce = true;
         agent.enabled = false;
         yield return new WaitForEndOfFrame();
-        
+
+        if (!active) yield break;
+
         //jump up const configured and forward toward player
         Vector3 toPlayer = player.transform.position - transform.position;
         toPlayer.y = 0;
@@ -208,6 +240,8 @@ public class EnemyAIController : MonoBehaviour, ICombat
         StartCoroutine(OutOfBoundsCheck());
 
         yield return new WaitForSeconds(pounceCooldown);
+
+        if (!active) yield break;
         midPounce = false;
     }
 
@@ -223,7 +257,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
         StartCoroutine(Pounce());
         midAttack = true;
         yield return new WaitForSeconds(attackDelay);//wait to get close to player
-        if (midAttack) //if hit player collision will trigger attack
+        if (active && midAttack) //if hit player collision will trigger attack
         {
             // check player location in bounds
             if (PlayerTrace()) Attack();
@@ -298,7 +332,11 @@ public class EnemyAIController : MonoBehaviour, ICombat
     //ICombat I/F 
     public void HealthChanged(float health)
     {
-        gameState.ReportDeath(this.gameObject);
+        if (health == 0)
+        {
+            Deactivate();
+            gameState.ReportDeath(this.gameObject);
+        }
     }
 
 

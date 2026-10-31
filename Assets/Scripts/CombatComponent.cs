@@ -31,6 +31,13 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         health = maxHealth;
     }
 
+    public void ResetState()
+    {
+        health = maxHealth;
+        ToggleVulnerability(1);
+        canAttack = true;
+    }
+
     //heal or damage effect on This
     public float ChangeHealth(float delta)
     {
@@ -90,22 +97,27 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         return attacked;
     }
 
-    //become vulnerable for duration
-    IEnumerator ToggleVulnerability(float dmgMult, float duration)
+    //parametre float(1) for no effect
+    void ToggleVulnerability(float dmgMult)
     {
         vulnerability = dmgMult;
-        if (hasSlider) slider.SetFill(fillVulnerable);
+        if (hasSlider) slider.SetFill(dmgMult == 1 ? fillDefault : fillVulnerable);
+    }
+
+    //become vulnerable for duration
+    IEnumerator VulnerableSequence(float dmgMult, float duration)
+    {
+        ToggleVulnerability(dmgMult);
 
         yield return new WaitForSeconds(duration);
 
-        vulnerability = 1;
-        if (hasSlider) slider.SetFill(fillDefault);
+        ToggleVulnerability(1);
     }
     
     //apply vulnerability for duration
     public void ApplyVulnerability(float dmgMult, float duration)
     {
-        if (canBeVulnerable && vulnerability == 1) StartCoroutine(ToggleVulnerability(dmgMult, duration));
+        if (canBeVulnerable && vulnerability == 1) StartCoroutine(VulnerableSequence(dmgMult, duration));
     }
 
     // Update is called once per frame

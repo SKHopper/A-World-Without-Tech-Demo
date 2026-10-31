@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using Unity.VisualScripting;
@@ -7,15 +8,21 @@ using UnityEngine.UI;
 
 //core between player component scripts
 //inc. main UI connector
-public class PlayerCoreBehaviour : MonoBehaviour, ICombat
+public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
 {
     //UI
-    [SerializeField] public GameObject hud = null;
+    [SerializeField] GameObject hud = null;
+    [SerializeField] GameObject camera;
+    [SerializeField] LayerMask interactable;
+    [SerializeField] float interactDistance;
 
     DamageEffect dmgFx;
     public IGameState gameState;
+    FuelRewardComponent fuelSystem;
 
     SortedDictionary<string, ISliderUser> sliderUserMap = new SortedDictionary<string, ISliderUser>();
+    bool canInteract = true;
+    float interactCooldown = .5f;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,5 +52,33 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat
         {
             gameState.ReportDeath(this.gameObject, DeathType.zeroHealth);
         }
+    }
+
+    IEnumerator WaitInteractCooldown()
+    {
+        canInteract = false;
+        yield return new WaitForSeconds(interactCooldown);
+        canInteract = true;
+    }
+
+    //override IPlayerCoreInput
+    //E-to-Interact with furnace obj (to deposite fuel)
+    public void OnInteract()
+    {
+        if (!canInteract) return;
+
+        WaitInteractCooldown();
+        
+        if (Physics.Linecast(
+                camera.transform.position,
+                camera.transform.position + (camera.transform.forward * interactDistance),
+                out RaycastHit hit,
+                interactable
+        ))
+        {
+            fuelSystem.PlayerInteractFurnace();
+        }
+
+
     }
 }

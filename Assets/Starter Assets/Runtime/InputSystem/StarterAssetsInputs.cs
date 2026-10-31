@@ -26,6 +26,8 @@ namespace StarterAssets
 		public IMissileLauncher missileComponent;
         //component of type BombLauncher
         public IBombLauncher bombComponent;
+		//component of type PlayerCoreBehaviour
+		public IPlayerCoreInput playerCoreBehaviour;
 
 #if ENABLE_INPUT_SYSTEM
 
@@ -33,11 +35,16 @@ namespace StarterAssets
 		{
 			if (!Cursor.visible) missileComponent.TryFire();
         }
+
         public void OnAltFire(InputValue value)
         {
             if (!Cursor.visible) bombComponent.TryFire();
         }
 
+		public void OnInteract(InputValue value)
+		{
+            if (!Cursor.visible) playerCoreBehaviour.OnInteract();
+        }
 
         public void OnMove(InputValue value)
 		{
