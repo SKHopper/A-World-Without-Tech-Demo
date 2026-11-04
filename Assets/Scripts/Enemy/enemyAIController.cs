@@ -55,7 +55,8 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [SerializeField] float patrolRange;
     [SerializeField] float successDistance;
 
-    Vector3 deactivePosition = new Vector3(0, 0, 1000);
+    Vector3 deactivePosition = new Vector3(0, 0, 0);
+    Vector3 test;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -70,16 +71,17 @@ public class EnemyAIController : MonoBehaviour, ICombat
     }
 
     //locate to position and activate
-    public void Activate(Vector3 position)
+    public void Activate(Vector3 spawnPoint)
     {
-        transform.position = position;
-        active = true;
+        transform.position = spawnPoint;
+        active = agent.enabled = true;
     }
 
     //reset state data, dissapear, and idle this
     public void Deactivate()
     {
         active =
+        agent.enabled =
         playerCloseSight =
         playerCloseAttack =
         recentlySpotted =
@@ -90,8 +92,14 @@ public class EnemyAIController : MonoBehaviour, ICombat
         combat.ResetState();
     }
 
+    public void Reactivate(Vector3 spawnPoint)
+    {
+        Deactivate();
+        Activate(spawnPoint);
+    }
+
     //set state for next move/combat action
-    void UpdateState()
+    EnemyAIState UpdateState()
     {
         //look for player
         if (!recentlySpotted) StartCoroutine(CheckPlayerInSight());
@@ -108,6 +116,8 @@ public class EnemyAIController : MonoBehaviour, ICombat
             }
         }
         else state = EnemyAIState.idle;
+
+        return state;
     }
 
     // Update is called once per frame
@@ -116,19 +126,20 @@ public class EnemyAIController : MonoBehaviour, ICombat
     {
         if (!active) return;
 
-        UpdateState();
-
-        switch (state)
+        switch (UpdateState())
         {
             case EnemyAIState.idle:
+
                 Patrol();
                 break;
 
             case EnemyAIState.chasing:
+
                 Chase();
                 break;
 
             case EnemyAIState.attacking:
+
                 TryAttack();
                 break;
         }
@@ -330,7 +341,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     }
 
     //ICombat I/F 
-    public void HealthChanged(float health)
+    public void HealthChanged(float health, bool attacked)
     {
         if (health == 0)
         {

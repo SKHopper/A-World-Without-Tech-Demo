@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,11 +11,15 @@ using UnityEngine.UI;
 //inc. main UI connector
 public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
 {
-    //UI
-    [SerializeField] GameObject hud = null;
-    [SerializeField] GameObject camera;
     [SerializeField] LayerMask interactable;
     [SerializeField] float interactDistance;
+    [SerializeField] GameObject camera;
+
+    [Header("UI")]
+    [SerializeField] GameObject hud = null;
+    [SerializeField] TextMeshProUGUI enemySpawnNotifier;
+    [SerializeField] string enemySpawnNotification;
+    [SerializeField] float enemySpawnNotifDuration = 1f;
 
     DamageEffect dmgFx;
     public IGameState gameState;
@@ -45,9 +50,9 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
     }
 
     //override ICombat
-    public void HealthChanged(float health) 
+    public void HealthChanged(float health, bool attacked) 
     {
-        dmgFx.StartEffect();
+        if (attacked) dmgFx.StartEffect();
 
         if (health == 0)
         {
@@ -69,7 +74,7 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
         if (!canInteract) return;
 
         WaitInteractCooldown();
-        
+
         if (Physics.Linecast(
                 camera.transform.position,
                 camera.transform.position + (camera.transform.forward * interactDistance),
@@ -79,7 +84,17 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
         {
             fuelSystem.PlayerInteractFurnace();
         }
+    }
 
+    public void NotifyEnemySpawn()
+    {
+        StartCoroutine(NotifyEnemySpawnSequence());
+    }
 
+    IEnumerator NotifyEnemySpawnSequence()
+    {
+        enemySpawnNotifier.text = enemySpawnNotification;
+        yield return new WaitForSeconds(enemySpawnNotifDuration);
+        enemySpawnNotifier.text = "";
     }
 }

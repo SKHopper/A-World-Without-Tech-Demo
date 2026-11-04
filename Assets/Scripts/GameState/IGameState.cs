@@ -3,7 +3,8 @@ using UnityEngine;
 public enum DeathType
 {
     zeroHealth,
-    zeroOxygen
+    zeroOxygen,
+    winCondition
 }
 
 //abstracted gamestate or main menu manager (observer)

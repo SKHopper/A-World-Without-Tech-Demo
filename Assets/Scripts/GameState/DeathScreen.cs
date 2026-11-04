@@ -22,7 +22,6 @@ public class DeathScreen : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gameState = GetComponent<IGameState>();
         deathText = deathButton.GetComponentInChildren<TextMeshProUGUI>();
         deathFill = deathButton.GetComponent<Image>();
         activeColour = deathFill.color;

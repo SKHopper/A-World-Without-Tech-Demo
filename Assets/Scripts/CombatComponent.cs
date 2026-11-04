@@ -10,6 +10,8 @@ public class CombatComponent : MonoBehaviour, ISliderUser
 {
     [SerializeField] float attackCooldown;
     [SerializeField] float maxHealth;
+    [SerializeField] float passiveRegen = 0;
+    [SerializeField] float attackedNoRegenPeriod = 2;
     [SerializeField] bool canBeVulnerable;
     [SerializeField] Color fillVulnerable;
 
@@ -17,16 +19,21 @@ public class CombatComponent : MonoBehaviour, ISliderUser
     ISlider slider;
 
     //incoming damage mult
+
     float vulnerability = 1;
     float health;
     bool canAttack = true;
+
     bool hasSlider = false;
+    bool regenerative;
+    float lastAttacked;
     //slider default colour
     Color fillDefault;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        regenerative = passiveRegen > 0;
         parent = GetComponent<ICombat>();
         health = maxHealth;
     }
@@ -41,9 +48,16 @@ public class CombatComponent : MonoBehaviour, ISliderUser
     //heal or damage effect on This
     public float ChangeHealth(float delta)
     {
-        float nDelta = (delta < 0) ? delta * vulnerability : delta;
-        health = Mathf.Clamp(health + nDelta, 0, maxHealth);
-        parent.HealthChanged(health);
+        bool attacked = false;
+
+        if (delta < 0) // delta is negative, we are being attacked
+        {
+            attacked = true;
+            lastAttacked = Time.time;
+            delta *= vulnerability;
+        }
+        health = Mathf.Clamp(health + delta, 0, maxHealth);
+        parent.HealthChanged(health, attacked);
         if (hasSlider) slider.UpdateBar(health);
         return health;
     }
@@ -85,16 +99,16 @@ public class CombatComponent : MonoBehaviour, ISliderUser
     //safe damage other gameObject's comp
     public bool Attack(GameObject recipient, float damage)
     {
-        bool attacked = false;
+        bool success = false;
 
         if (canAttack && recipient.TryGetComponent(out CombatComponent other))
         {
             other.ChangeHealth(-damage);
             StartCoroutine(DoAttackCooldown());
-            attacked = true;
+            success = true;
         }
 
-        return attacked;
+        return success;
     }
 
     //parametre float(1) for no effect
@@ -120,9 +134,17 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         if (canBeVulnerable && vulnerability == 1) StartCoroutine(VulnerableSequence(dmgMult, duration));
     }
 
+    void Regenerate()
+    {
+        if (health < maxHealth && Time.time - lastAttacked > attackedNoRegenPeriod)
+        {
+            ChangeHealth(passiveRegen * Time.deltaTime);
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
-        
+        if (regenerative) Regenerate();
     }
 }
