@@ -14,6 +14,7 @@ public class TutorialWidget : MonoBehaviour
     [SerializeField] TextMeshProUGUI startText;
     [SerializeField] Image startFill;
     [SerializeField] Button startButton;
+    [SerializeField] TextMeshProUGUI techDemoInfoText;
 
     public IGameState mainMenu;
 
@@ -55,6 +56,8 @@ public class TutorialWidget : MonoBehaviour
         buttonFill.color = buttonColour;
         tutorialButton.interactable = true;
         buttonText.text = "Next";
+
+        techDemoInfoText.text = "";
 
         startFill.color = invis;
         startText.text = "";
