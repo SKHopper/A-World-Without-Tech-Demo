@@ -10,6 +10,9 @@ public class BombLauncher : MonoBehaviour, IBombLauncher
     [SerializeField] GameObject camera;
     [SerializeField] float oxygenCost;
     [SerializeField] BombStats stats;
+    [Header("SFX")]
+    [SerializeField] AudioClip launchSound;
+    [SerializeField] AudioSource audioSource;
 
     OxygenComponent oxygen;
 
@@ -38,5 +41,6 @@ public class BombLauncher : MonoBehaviour, IBombLauncher
     {
         oxygen.ChangeOxygen(-oxygenCost);
         pool.Fire();
+        audioSource.PlayOneShot(launchSound);
     }
 }

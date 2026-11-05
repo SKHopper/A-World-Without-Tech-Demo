@@ -14,7 +14,10 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
     [SerializeField] LayerMask interactable;
     [SerializeField] float interactDistance;
     [SerializeField] GameObject camera;
-
+    [Header("SFX")]
+    [SerializeField] AudioClip deathSound;
+    [SerializeField] AudioClip hurtSound;
+    [SerializeField] AudioSource audioSource;
     [Header("UI")]
     [SerializeField] GameObject hud = null;
     [SerializeField] TextMeshProUGUI enemySpawnNotifier;
@@ -52,10 +55,15 @@ public class PlayerCoreBehaviour : MonoBehaviour, ICombat, IPlayerCoreInput
     //override ICombat
     public void HealthChanged(float health, bool attacked) 
     {
-        if (attacked) dmgFx.StartEffect();
+        if (attacked)
+        {
+            dmgFx.StartEffect();
+            audioSource.PlayOneShot(hurtSound);
+        }
 
         if (health == 0)
         {
+            audioSource.PlayOneShot(deathSound);
             gameState.ReportDeath(this.gameObject, DeathType.zeroHealth);
         }
     }

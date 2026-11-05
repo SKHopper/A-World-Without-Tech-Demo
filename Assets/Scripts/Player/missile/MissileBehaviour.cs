@@ -26,6 +26,7 @@ using UnityEngine.UIElements;
     //overlap sphere size
     [SerializeField] public float radius;
     [SerializeField] public float damage;
+    [SerializeField] public AudioClip hitSound;
     [Header("VFX - MissileHitType ParticleSystem(s)")]
     [SerializeField] public MissileHitParticles particleSystemConfig;
 }
@@ -38,6 +39,7 @@ public class MissileBehaviour : MonoBehaviour
     IMissileLauncher parentLauncher;
     //obj type SimpleParticlesPlayer (rather than SimpleParticles)
     GameObject playerCam;
+    AudioSource audioSource;
 
     Vector3 deactivePosition;
     bool active = false;
@@ -57,6 +59,7 @@ public class MissileBehaviour : MonoBehaviour
     void Start()
     {
         transform.position = deactivePosition = new Vector3(0, 0, 1000);
+        audioSource = GetComponent<AudioSource>();
     }
 
     //setup by parent launcher
@@ -148,6 +151,7 @@ public class MissileBehaviour : MonoBehaviour
         );
 
         //SFX
+        if (type != MissileHitType.maxDistance) audioSource.PlayOneShot(stats.hitSound);
 
     }
 

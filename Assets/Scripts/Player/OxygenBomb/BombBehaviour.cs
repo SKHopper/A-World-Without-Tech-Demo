@@ -13,6 +13,7 @@ using Random = UnityEngine.Random;
     //vulnerability (see CombatComponent)
     [SerializeField] public float effectStrength;
     [SerializeField] public float effectDuration;
+    [SerializeField] public AudioClip explosionSound;
 }
 
 //central component for oxygen bomb instances
@@ -27,6 +28,7 @@ public class BombBehaviour : MonoBehaviour, IBombHittable
     float activeLifetime;
     BombStats stats;
 
+    AudioSource audioSource;
     GameObject playerCam;
     //type BombPool
     IBombPool parentPool;
@@ -45,6 +47,7 @@ public class BombBehaviour : MonoBehaviour, IBombHittable
         transform.position = deactivePosition;
 
         player = stats.systemsPlayer.GetComponent<ISimpleParticles>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -108,6 +111,7 @@ public class BombBehaviour : MonoBehaviour, IBombHittable
     {
         vulnerabilityAOE();
         player.Play(transform.position);
+        audioSource.PlayOneShot(stats.explosionSound);
         Deactivate();
         parentPool.Explosion(this);
     }
