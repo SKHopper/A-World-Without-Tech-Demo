@@ -13,6 +13,7 @@ using Random = UnityEngine.Random;
     //vulnerability (see CombatComponent)
     [SerializeField] public float effectStrength;
     [SerializeField] public float effectDuration;
+
     [SerializeField] public AudioClip explosionSound;
 }
 
