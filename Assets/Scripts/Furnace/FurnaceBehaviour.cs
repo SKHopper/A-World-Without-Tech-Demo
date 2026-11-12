@@ -26,9 +26,10 @@ public class FurnaceBehaviour : MonoBehaviour
         InUse = false;
     }
 
-    public void Burn()
+    public float Burn()
     {
         StartCoroutine(BurnSequence());
+        return oxygenGain;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

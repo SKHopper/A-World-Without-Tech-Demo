@@ -21,6 +21,7 @@ public class FuelRewardComponent : MonoBehaviour
     {
         if (fuel > 0 && !furnace.InUse) 
         {
+            ChangeFuel(-1);
             furnace.Burn();
         }
     }
