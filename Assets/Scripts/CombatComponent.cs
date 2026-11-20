@@ -72,6 +72,11 @@ public class CombatComponent : MonoBehaviour, ISliderUser
         return maxHealth;
     }
 
+    public void SetMaxHealth(float newMaxhealth)
+    {
+        maxHealth = newMaxhealth;
+    }
+
     public bool GetCanAttack()
     {
         return canAttack;

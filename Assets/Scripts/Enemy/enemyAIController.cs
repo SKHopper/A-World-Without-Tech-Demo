@@ -1,10 +1,14 @@
+using NUnit.Framework;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 //controller for enemy AI combat and movement
+//enemies respawn according to game state with a certain level's material and stats
 
 public enum EnemyAIState
 {
@@ -20,14 +24,15 @@ public class EnemyAIController : MonoBehaviour, ICombat
 {
     GameObject player;
     public IGameState gameState;
+
     //self
-    EnemyAIState state;
     NavMeshAgent agent;
     [SerializeField] LayerMask groundLayer, playerLayer;
     Rigidbody rigidbody;
     [SerializeField] bool drawDebug;
 
     [Header("State Machine")]
+    EnemyAIState state;
     //state triggering
     [SerializeField] float sightRange;
     [SerializeField] float checkSightDelay;
@@ -46,6 +51,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [SerializeField] Vector3 pounceTraceOffset;
     [SerializeField] Vector3 pounceTraceDimensions;
     CombatComponent combat;
+    [SerializeField] float baseMaxHealth;
     bool midAttack, midPounce = false;
 
     //patrolling
@@ -54,9 +60,13 @@ public class EnemyAIController : MonoBehaviour, ICombat
     [Header("Patrolling")]
     [SerializeField] float patrolRange;
     [SerializeField] float successDistance;
-
     Vector3 deactivePosition = new Vector3(0, 0, 0);
-    Vector3 test;
+
+    //levelling
+    int level;
+    [SerializeField] List<Material> levelMaterials;
+    [SerializeField] MeshRenderer skin;
+    [SerializeField] float perLvlHealthAddition;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -67,14 +77,18 @@ public class EnemyAIController : MonoBehaviour, ICombat
         combat = GetComponent<CombatComponent>();
         rigidbody = GetComponent<Rigidbody>();
 
-        Activate(transform.position);
+        Activate(transform.position, 1);
     }
 
     //locate to position and activate
-    public void Activate(Vector3 spawnPoint)
+    public void Activate(Vector3 spawnPoint, int newLevel)
     {
         transform.position = spawnPoint;
+        level = newLevel;
+
         active = agent.enabled = true;
+        skin.material = levelMaterials[level - 1];
+        combat.SetMaxHealth(baseMaxHealth + perLvlHealthAddition * (level - 1));
     }
 
     //reset state data, dissapear, and idle this
@@ -92,10 +106,10 @@ public class EnemyAIController : MonoBehaviour, ICombat
         combat.ResetState();
     }
 
-    public void Reactivate(Vector3 spawnPoint)
+    public void Reactivate(Vector3 spawnPoint, int newLevel)
     {
         Deactivate();
-        Activate(spawnPoint);
+        Activate(spawnPoint, newLevel);
     }
 
     //set state for next move/combat action

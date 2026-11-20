@@ -59,7 +59,7 @@ public class GameState : MonoBehaviour, IGameState
 
     void SpawnEnemy()
     {
-        enemyOriginal.Activate(enemySpawnPoints[Random.Range(0, enemySpawnPoints.Count)]);
+        enemyOriginal.Activate(enemySpawnPoints[Random.Range(0, enemySpawnPoints.Count)], enemiesKilled + 1);
         player.NotifyEnemySpawn();
     }
 
