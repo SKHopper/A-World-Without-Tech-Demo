@@ -44,7 +44,8 @@ public class FuelRewardComponent : MonoBehaviour
     {
         fuel = Mathf.Clamp(fuel + delta, 0, int.MaxValue);
         countText.text = fuel.ToString();
-        StartCoroutine(NotifyChange(delta));
+
+        if (delta > 0) StartCoroutine(NotifyChange(delta));
     }
 
     // Update is called once per frame

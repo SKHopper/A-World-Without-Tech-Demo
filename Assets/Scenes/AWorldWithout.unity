@@ -17543,7 +17543,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e9dfa24f0ad5854e9ff882e6f6d8f53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatComponent
-  attackCooldown: 1.7
+  attackCooldown: 1
   maxHealth: 20
   passiveRegen: 0.3
   attackedNoRegenPeriod: 3

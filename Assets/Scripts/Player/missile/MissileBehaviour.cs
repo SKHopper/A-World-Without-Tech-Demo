@@ -177,7 +177,9 @@ public class MissileBehaviour : MonoBehaviour
     //hit maxDistance if active and beyond stat value
     void Constrain()
     {
-        if (active && Vector3.Distance(transform.position, parentLauncher.Position()) > stats.maxDistance) 
+        if (active && Vector3.Distance(transform.position, parentLauncher.Position()) > stats.maxDistance)
+        {
             Hit(MissileHitType.maxDistance, null);
+        }
     }
 }

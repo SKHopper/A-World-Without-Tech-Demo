@@ -67,6 +67,6 @@ public class MissileLauncher : MonoBehaviour, IMissileLauncher
 
     public Vector3 Position()
     {
-        return transform.position;
+        return gameObject.transform.position;
     }
 }

@@ -28,6 +28,6 @@ public class MainMenu : MonoBehaviour, IGameState
     // Update is called once per frame
     void Update()
     {
-        
+        Cursor.visible = true;
     }
 }
