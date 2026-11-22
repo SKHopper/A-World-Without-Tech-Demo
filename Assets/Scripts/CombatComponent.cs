@@ -39,6 +39,7 @@ public class CombatComponent : MonoBehaviour, ISliderUser
 
     public void ResetState()
     {
+        parent = GetComponent<ICombat>();
         ChangeHealth(float.MaxValue);
 
         ToggleVulnerability(1);

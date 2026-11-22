@@ -89,6 +89,7 @@ public class EnemyAIController : MonoBehaviour, ICombat
         active = agent.enabled = true;
         skin.material = levelMaterials[level - 1];
         combat.SetMaxHealth(baseMaxHealth + perLvlHealthAddition * (level - 1));
+        combat.ResetState();
     }
 
     //reset state data, dissapear, and idle this
@@ -103,7 +104,6 @@ public class EnemyAIController : MonoBehaviour, ICombat
         midPounce = false;
 
         transform.position = deactivePosition;
-        combat.ResetState();
     }
 
     public void Reactivate(Vector3 spawnPoint, int newLevel)
